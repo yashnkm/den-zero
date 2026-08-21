@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Den Zero Registration</title>
+  <meta name="description" content="Register your team for Den Zero, a startup pitch arena by Hustle Den. Pitch your idea to angel investors, VCs and family offices." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lekton:wght@400;700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ============ PRELOADER (door-frame draws itself, then lifts away) ============ -->
+  <div id="preloader" class="preloader" aria-hidden="true">
+    <img class="preloader__logo" src="logo-light.png" alt="Den Zero" />
+  </div>
+
+  <!-- ============ BRAND PANEL (left) ============ -->
+  <aside class="brand-panel" aria-label="Den Zero">
+    <canvas id="constellation" aria-hidden="true"></canvas>
+    <div class="brand-panel__scrim" aria-hidden="true"></div>
+
+    <div class="brand-panel__inner">
+      <header class="brand-lockup">
+        <img class="brand-logo" src="logo-light.png" alt="Den Zero" />
+        <span class="brand-by">by Hustle Den</span>
+      </header>
+
+      <div class="brand-copy">
+        <p class="brand-kicker">// Registration · Cohort 01</p>
+        <h1 class="brand-headline">Built for those<br/>who refuse to<br/><em>wait their turn.</em></h1>
+        <p class="brand-sub">We connect serious founders with angel investors, VCs, and family offices who back conviction, not just traction.</p>
+      </div>
+
+      <nav class="step-index" aria-label="Form progress">
+        <ol id="stepIndex">
+          <li data-step="0"><span class="step-index__num">01</span><span class="step-index__label">Team Details</span></li>
+          <li data-step="1"><span class="step-index__num">02</span><span class="step-index__label">Team Lead</span></li>
+          <li data-step="2"><span class="step-index__num">03</span><span class="step-index__label">The Idea</span></li>
+          <li data-step="3"><span class="step-index__num">04</span><span class="step-index__label">Pitch Deck</span></li>
+          <li data-step="4"><span class="step-index__num">05</span><span class="step-index__label">Payment</span></li>
+          <li data-step="5"><span class="step-index__num">06</span><span class="step-index__label">Declaration</span></li>
+        </ol>
+      </nav>
+
+      <footer class="brand-foot">
+        <span>₹999 / team</span>
+        <span>Teams of 1–3</span>
+        <span>@denzero</span>
+      </footer>
+    </div>
+  </aside>
+
+  <!-- ============ FORM SIDE (right) ============ -->
+  <main class="form-side">
+    <div class="form-side__grain" aria-hidden="true"></div>
+
+    <!-- Mobile top bar -->
+    <header class="mobile-bar">
+      <img class="mobile-bar__logo" src="logo-light.png" alt="Den Zero" />
+      <span class="mobile-bar__step" id="mobileStepLabel">01 / 06</span>
+    </header>
+    <div class="progress-rail" aria-hidden="true"><div class="progress-rail__fill" id="progressFill"></div></div>
+
+    <form id="regForm" class="form" novalidate>
+
+      <!-- ░░ STEP 1 · TEAM DETAILS ░░ -->
+      <section class="step is-active" data-step="0" aria-labelledby="s1-title">
+        <p class="step__kicker">01. Team Details</p>
+        <h2 class="step__title" id="s1-title">Who's walking<br/>through the door?</h2>
+        <p class="step__lede">Teams of one to three. Solo founders welcome; conviction counts more than headcount.</p>
+
+        <div class="field-group">
+          <span class="field-label">Team size <b>*</b></span>
+          <div class="size-picker" role="radiogroup" aria-label="Team size">
+            <label class="size-chip"><input type="radio" name="teamSize" value="1" required /><span><b>1</b>Solo</span></label>
+            <label class="size-chip"><input type="radio" name="teamSize" value="2" /><span><b>2</b>Duo</span></label>
+            <label class="size-chip"><input type="radio" name="teamSize" value="3" checked /><span><b>3</b>Trio</span></label>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="teamName">Team / squad name <b>*</b></label>
+          <input class="input" id="teamName" name="teamName" type="text" placeholder="e.g. Night Owls" required />
+          <p class="field-error">Give your team a name.</p>
+        </div>
+
+        <div id="membersWrap"><!-- member cards injected by JS --></div>
+      </section>
+
+      <!-- ░░ STEP 2 · TEAM LEAD ░░ -->
+      <section class="step" data-step="1" aria-labelledby="s2-title">
+        <p class="step__kicker">02. Team Lead</p>
+        <h2 class="step__title" id="s2-title">Who do we<br/>call first?</h2>
+        <p class="step__lede">Your primary contact for shortlist results, mentor calls and event-day logistics.</p>
+
+        <div class="field-group">
+          <label class="field-label" for="leadSelect">Primary contact person <b>*</b></label>
+          <select class="input input--select" id="leadSelect" name="leadName" required>
+            <option value="" disabled selected>Select a team member…</option>
+          </select>
+          <p class="field-error">Pick your team lead.</p>
+        </div>
+
+        <div class="grid-2">
+          <div class="field-group">
+            <label class="field-label" for="leadWhatsapp">WhatsApp number <b>*</b></label>
+            <input class="input phone-input" id="leadWhatsapp" name="leadWhatsapp" type="tel" inputmode="numeric" maxlength="10" placeholder="10-digit number" pattern="[0-9]{10}" required />
+            <p class="field-error">Enter a valid 10-digit number.</p>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="leadEmail">Email address <b>*</b></label>
+            <input class="input" id="leadEmail" name="leadEmail" type="email" placeholder="lead@college.edu" required />
+            <p class="field-error">Enter a valid email.</p>
+          </div>
+        </div>
+
+        <div class="note-strip">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 8v5m0 3h.01M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          All Den Zero communication happens on WhatsApp + email. Keep both active.
+        </div>
+      </section>
+
+      <!-- ░░ STEP 3 · THE IDEA ░░ -->
+      <section class="step" data-step="2" aria-labelledby="s3-title">
+        <p class="step__kicker">03. Startup / Idea</p>
+        <h2 class="step__title" id="s3-title">Now, the part<br/>that matters.</h2>
+        <p class="step__lede">Write like you'd talk to an investor. Sharp, honest, zero buzzwords.</p>
+
+        <div class="field-group">
+          <label class="field-label" for="ideaName">Startup / idea name <b>*</b></label>
+          <input class="input" id="ideaName" name="ideaName" type="text" placeholder="What's it called?" required />
+          <p class="field-error">Name your idea.</p>
+        </div>
+
+        <div class="field-group">
+          <span class="field-label">Current stage <b>*</b></span>
+          <div class="stage-grid" role="radiogroup" aria-label="Current stage">
+            <label class="stage-card"><input type="radio" name="stage" value="Idea" required />
+              <span class="stage-card__num">S0</span><span class="stage-card__name">Idea</span><span class="stage-card__desc">A sharp insight, nothing built yet</span></label>
+            <label class="stage-card"><input type="radio" name="stage" value="Prototype / MVP" />
+              <span class="stage-card__num">S1</span><span class="stage-card__name">Prototype / MVP</span><span class="stage-card__desc">Something works, someone's tried it</span></label>
+            <label class="stage-card"><input type="radio" name="stage" value="Early Startup" />
+              <span class="stage-card__num">S2</span><span class="stage-card__name">Early Startup</span><span class="stage-card__desc">Live product, early users</span></label>
+            <label class="stage-card"><input type="radio" name="stage" value="Revenue Generating" />
+              <span class="stage-card__num">S3</span><span class="stage-card__name">Revenue</span><span class="stage-card__desc">Paying customers, real traction</span></label>
+          </div>
+          <p class="field-error">Select your stage.</p>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="problem">Problem statement <b>*</b></label>
+          <textarea class="input input--area" id="problem" name="problem" rows="3" placeholder="What's broken, and for whom?" required></textarea>
+          <span class="char-count" data-for="problem">0 / 700 words</span>
+          <p class="field-error">Describe the problem.</p>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="solution">Your solution <b>*</b></label>
+          <textarea class="input input--area" id="solution" name="solution" rows="3" placeholder="How do you fix it?" required></textarea>
+          <span class="char-count" data-for="solution">0 / 700 words</span>
+          <p class="field-error">Describe your solution.</p>
+        </div>
+
+        <div class="grid-2">
+          <div class="field-group">
+            <label class="field-label" for="audience">Target audience <b>*</b></label>
+            <input class="input" id="audience" name="audience" type="text" placeholder="Who pays / who uses it?" required />
+            <p class="field-error">Who is this for?</p>
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="unique">What makes it unique? <b>*</b></label>
+            <input class="input" id="unique" name="unique" type="text" placeholder="Your unfair advantage" required />
+            <p class="field-error">What's your edge?</p>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="progress">Current progress / status <b>*</b></label>
+          <textarea class="input input--area" id="progress" name="progress" rows="2" placeholder="Users, pilots, waitlists, revenue, whatever you've got" required></textarea>
+          <span class="char-count" data-for="progress">0 / 700 words</span>
+          <p class="field-error">Tell us where you are right now.</p>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="idealInvestor">Who's your ideal investor? <b>*</b></label>
+          <textarea class="input input--area" id="idealInvestor" name="idealInvestor" rows="2" placeholder="Eg., angels, VC funds, industry expert, or any particular hero investor" required></textarea>
+          <span class="char-count" data-for="idealInvestor">0 / 700 words</span>
+          <p class="field-error">Tell us who you'd love on your cap table.</p>
+        </div>
+      </section>
+
+      <!-- ░░ STEP 4 · PITCH DECK ░░ -->
+      <section class="step" data-step="3" aria-labelledby="s4-title">
+        <p class="step__kicker">04. Pitch Deck</p>
+        <h2 class="step__title" id="s4-title">Show us<br/>the deck.</h2>
+        <p class="step__lede">PDF, max 10&nbsp;MB. Still at the ideation stage? A one-page concept note or basic presentation works too.</p>
+
+        <div class="field-group">
+          <label class="dropzone" id="deckZone" for="deckFile">
+            <input type="file" id="deckFile" name="deckFile" accept="application/pdf" required hidden />
+            <svg class="dropzone__icon" viewBox="0 0 100 130" fill="none" aria-hidden="true">
+              <path d="M2 10 H78 V128 H2 Z"  stroke="currentColor" stroke-width="4"/>
+              <path d="M12 18 H88 V120 H12 Z" stroke="currentColor" stroke-width="4"/>
+              <path d="M22 26 H98 V112 H22 Z" stroke="currentColor" stroke-width="4"/>
+            </svg>
+            <span class="dropzone__title">Drop your deck here</span>
+            <span class="dropzone__hint">or <u>browse files</u> · PDF only, up to 10 MB</span>
+            <span class="dropzone__file" hidden></span>
+          </label>
+          <p class="field-error">Upload your pitch deck (PDF, max 10 MB).</p>
+        </div>
+
+        <div class="note-strip">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 8v5m0 3h.01M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          A good deck covers: problem · solution · market · team · ask. Ten slides beat thirty.
+        </div>
+      </section>
+
+      <!-- ░░ STEP 5 · PAYMENT ░░ -->
+      <section class="step" data-step="4" aria-labelledby="s5-title">
+        <p class="step__kicker">05. Payment</p>
+        <h2 class="step__title" id="s5-title">Secure your<br/>spot in the den.</h2>
+        <p class="step__lede">One flat fee per team. Covers evaluation, mentor feedback and event access.</p>
+
+        <div class="pay-card">
+          <div class="pay-card__amount">
+            <span class="pay-card__label">Registration fee</span>
+            <span class="pay-card__price">₹999<small>/ team</small></span>
+          </div>
+          <div class="pay-card__upi">
+            <span class="pay-card__label">Pay via UPI</span>
+            <code class="pay-card__vpa" id="upiId">9158214594-3@ybl</code>
+            <button type="button" class="pay-card__copy" id="copyUpi">Copy ID</button>
+            <span class="pay-card__alt">or pay to number <b>9158214594</b></span>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="utr">Transaction ID / UTR number <b>*</b></label>
+          <input class="input input--mono" id="utr" name="utr" type="text" placeholder="e.g. 415236789012" minlength="8" required />
+          <p class="field-error">Enter the UTR / transaction ID from your payment app.</p>
+        </div>
+
+        <div class="field-group">
+          <label class="dropzone dropzone--slim" id="shotZone" for="shotFile">
+            <input type="file" id="shotFile" name="shotFile" accept="image/*,.pdf" required hidden />
+            <svg class="dropzone__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 16l4.5-4.5a2 2 0 0 1 2.8 0L16 16m-2-2 1.5-1.5a2 2 0 0 1 2.8 0L20 14M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Zm5 2h.01" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="dropzone__title">Upload payment screenshot</span>
+            <span class="dropzone__hint">image or PDF, up to 5 MB</span>
+            <span class="dropzone__file" hidden></span>
+          </label>
+          <p class="field-error">Attach your payment screenshot.</p>
+        </div>
+      </section>
+
+      <!-- ░░ STEP 6 · DECLARATION ░░ -->
+      <section class="step" data-step="5" aria-labelledby="s6-title">
+        <p class="step__kicker">06. Final Word</p>
+        <h2 class="step__title" id="s6-title">Almost in.<br/>Sign it off.</h2>
+        <p class="step__lede">Two quick questions, three honest checkboxes, and the door opens.</p>
+
+        <div class="field-group">
+          <label class="field-label" for="source">How did you hear about Den Zero? <b>*</b></label>
+          <select class="input input--select" id="source" name="source" required>
+            <option value="" disabled selected>Choose one…</option>
+            <option>Instagram / social media</option>
+            <option>College / campus ambassador</option>
+            <option>Friend or teammate</option>
+            <option>WhatsApp group</option>
+            <option>Den's Capital network</option>
+            <option>Other</option>
+          </select>
+          <p class="field-error">Let us know how you found us.</p>
+        </div>
+
+        <div class="field-group">
+          <span class="field-label">What are you looking for from Den Zero? <b>*</b> <em class="field-hint">(pick all that apply)</em></span>
+          <div class="pill-grid" id="lookingFor">
+            <label class="pill"><input type="checkbox" name="lookingFor" value="Mentorship" /><span>Mentorship</span></label>
+            <label class="pill"><input type="checkbox" name="lookingFor" value="Funding" /><span>Funding</span></label>
+            <label class="pill"><input type="checkbox" name="lookingFor" value="Validation" /><span>Validation</span></label>
+            <label class="pill"><input type="checkbox" name="lookingFor" value="Networking" /><span>Networking</span></label>
+            <label class="pill"><input type="checkbox" name="lookingFor" value="Co-founders" /><span>Co-founders</span></label>
+          </div>
+          <p class="field-error">Select at least one.</p>
+        </div>
+
+        <div class="field-group declarations">
+          <span class="field-label">Declaration <b>*</b></span>
+          <label class="check"><input type="checkbox" name="declAccurate" required /><span class="check__box"></span><span>All information provided is accurate to the best of my knowledge.</span></label>
+          <label class="check"><input type="checkbox" name="declOriginal" required /><span class="check__box"></span><span>The idea submitted is original and our own work.</span></label>
+          <label class="check"><input type="checkbox" name="declTerms" required /><span class="check__box"></span><span>We agree to Den Zero's terms and evaluation process.</span></label>
+          <p class="field-error">All three declarations are required.</p>
+        </div>
+      </section>
+
+      <!-- ░░ NAV ░░ -->
+      <p class="submit-error" id="submitError" hidden role="alert"></p>
+      <div class="form-nav">
+        <button type="button" class="btn btn--ghost" id="backBtn" disabled>
+          <span class="btn__arrow">←</span> Back
+        </button>
+        <button type="button" class="btn btn--solid" id="nextBtn">
+          Continue <span class="btn__arrow">→</span>
+        </button>
+        <button type="submit" class="btn btn--solid btn--submit" id="submitBtn" hidden>
+          Enter the Den <span class="btn__arrow">→</span>
+        </button>
+      </div>
+    </form>
+
+    <!-- ░░ SUCCESS ░░ -->
+    <section class="success" id="successScreen" hidden>
+      <svg class="success__mark" viewBox="0 0 100 130" fill="none" aria-hidden="true">
+        <path class="door door--1" d="M2 10 H78 V128 H2 Z"  stroke="currentColor" stroke-width="3"/>
+        <path class="door door--2" d="M12 18 H88 V120 H12 Z" stroke="currentColor" stroke-width="3"/>
+        <path class="door door--3" d="M22 26 H98 V112 H22 Z" stroke="currentColor" stroke-width="3"/>
+      </svg>
+      <p class="step__kicker">Registration received</p>
+      <h2 class="success__title">The door<br/>is open.</h2>
+      <p class="success__sub">Your team is in. We'll verify your payment and reach out on WhatsApp within 48 hours with next steps.</p>
+      <div class="success__ref">
+        <span>Reference ID</span>
+        <code id="refId">DZ-26-0000</code>
+      </div>
+      <p class="success__foot">Questions? Write to <a href="mailto:hello@denzero.in">hello@denzero.in</a></p>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

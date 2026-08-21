@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Den Zero — Admin Login</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lekton:wght@400;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --navy:#001F65; --navy-deep:#021240; --navy-void:#010a26;
+      --paper:#F4F6FC; --powder:#BDD7FF; --error:#ff8d85;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family:'Montserrat',sans-serif;
+      min-height:100vh; display:flex; align-items:center; justify-content:center;
+      background:
+        radial-gradient(120% 80% at 80% 0%, #0a2f8a 0%, transparent 55%),
+        linear-gradient(165deg, var(--navy) 0%, var(--navy-deep) 55%, var(--navy-void) 100%);
+      color:var(--paper);
+    }
+    .card { width:min(380px, 92vw); text-align:center; }
+    .mark { width:54px; margin-bottom:1.2rem; color:var(--paper); }
+    h1 { font-family:'Bebas Neue'; font-weight:400; font-size:2.4rem; letter-spacing:.05em; line-height:1; }
+    .kicker {
+      font-family:'Lekton',monospace; font-size:.72rem; font-weight:700;
+      letter-spacing:.24em; text-transform:uppercase; color:var(--powder); margin-top:.5rem;
+    }
+    form { margin-top:2.2rem; display:flex; flex-direction:column; gap:.9rem; }
+    input {
+      font-family:'Lekton',monospace; font-size:1rem; letter-spacing:.08em;
+      padding:.95rem 1.1rem; border-radius:6px; border:1.5px solid rgba(244,246,252,.25);
+      background:rgba(244,246,252,.06); color:var(--paper); text-align:center; outline:none;
+    }
+    input::placeholder { color:rgba(244,246,252,.4); letter-spacing:.18em; }
+    input:focus { border-color:var(--powder); box-shadow:0 0 0 4px rgba(189,215,255,.15); }
+    button {
+      font-family:'Bebas Neue'; font-size:1.15rem; letter-spacing:.1em; text-transform:uppercase;
+      padding:.9rem; border-radius:6px; border:none; cursor:pointer;
+      background:var(--paper); color:var(--navy);
+      transition:transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .25s;
+    }
+    button:hover { transform:translateY(-2px); box-shadow:0 10px 26px rgba(0,0,0,.35); }
+    button:disabled { opacity:.5; cursor:wait; transform:none; }
+    .err {
+      font-size:.8rem; font-weight:600; color:var(--error); min-height:1.2em;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <svg class="mark" viewBox="0 0 100 130" fill="none">
+      <path d="M2 10 H78 V128 H2 Z" stroke="currentColor" stroke-width="3"/>
+      <path d="M12 18 H88 V120 H12 Z" stroke="currentColor" stroke-width="3"/>
+      <path d="M22 26 H98 V112 H22 Z" stroke="currentColor" stroke-width="3"/>
+    </svg>
+    <h1>Den Zero</h1>
+    <p class="kicker">// Admin Access</p>
+    <form id="loginForm">
+      <input type="password" id="pass" placeholder="•••••••••••" autocomplete="current-password" autofocus required />
+      <p class="err" id="err"></p>
+      <button type="submit" id="btn">Open the door</button>
+    </form>
+  </div>
+  <script>
+    const form = document.getElementById('loginForm');
+    const err = document.getElementById('err');
+    const btn = document.getElementById('btn');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      err.textContent = '';
+      btn.disabled = true;
+      try {
+        const res = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: document.getElementById('pass').value }),
+        });
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(json.error || 'Login failed.');
+        location.reload();
+      } catch (ex) {
+        err.textContent = ex.message;
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

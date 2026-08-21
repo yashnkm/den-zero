@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Den Zero — Admin</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lekton:wght@400;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --navy: #001F65; --navy-deep: #021240; --paper: #F4F6FC;
+      --powder: #BDD7FF; --ink: #0E0E0E; --error: #c2342a; --ok: #1a7a3a;
+      --line: rgba(0,31,101,.16);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Montserrat',sans-serif; background:var(--paper); color:var(--ink); }
+
+    header {
+      display:flex; align-items:center; gap:1rem;
+      background:linear-gradient(165deg,var(--navy),var(--navy-deep));
+      color:var(--paper); padding:1.2rem 2rem;
+    }
+    header svg { width:26px; }
+    header h1 { font-family:'Bebas Neue'; font-size:1.6rem; letter-spacing:.06em; font-weight:400; }
+    header .spacer { flex:1; }
+    .hbtn {
+      font-family:'Lekton',monospace; font-size:.75rem; font-weight:700; letter-spacing:.14em;
+      text-transform:uppercase; color:var(--powder); text-decoration:none; background:none;
+      border:1px solid rgba(189,215,255,.4); border-radius:99px; padding:.45rem 1rem; cursor:pointer;
+    }
+    .hbtn:hover { background:rgba(189,215,255,.15); }
+
+    .stats { display:flex; gap:1rem; padding:1.5rem 2rem 0; flex-wrap:wrap; }
+    .stat { background:#fff; border:1.5px solid var(--line); border-radius:8px; padding:.9rem 1.4rem; min-width:150px; }
+    .stat b { display:block; font-family:'Bebas Neue'; font-size:2rem; color:var(--navy); line-height:1; }
+    .stat span { font-family:'Lekton',monospace; font-size:.68rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:rgba(14,14,14,.5); }
+
+    main { padding:1.5rem 2rem 4rem; }
+    table { width:100%; border-collapse:collapse; background:#fff; border:1.5px solid var(--line); border-radius:8px; overflow:hidden; }
+    th {
+      font-family:'Lekton',monospace; font-size:.68rem; font-weight:700; letter-spacing:.14em;
+      text-transform:uppercase; text-align:left; color:var(--paper);
+      background:var(--navy); padding:.7rem .9rem;
+    }
+    td { padding:.7rem .9rem; font-size:.82rem; border-top:1px solid var(--line); vertical-align:middle; }
+    tr.row { cursor:pointer; }
+    tr.row:hover td { background:rgba(0,31,101,.05); }
+    .mono { font-family:'Lekton',monospace; font-weight:700; }
+    .badge { font-family:'Lekton',monospace; font-size:.68rem; font-weight:700; letter-spacing:.1em; padding:.2rem .6rem; border-radius:99px; white-space:nowrap; }
+    .badge.ok { background:rgba(26,122,58,.12); color:var(--ok); }
+    .badge.pending { background:rgba(194,52,42,.1); color:var(--error); }
+    .empty { text-align:center; padding:3rem; color:rgba(14,14,14,.5); }
+
+    /* filter tabs */
+    .tabs { display:flex; gap:.6rem; padding:1.4rem 2rem 0; flex-wrap:wrap; }
+    .tab {
+      font-family:'Lekton',monospace; font-size:.74rem; font-weight:700; letter-spacing:.12em;
+      text-transform:uppercase; color:var(--navy); background:#fff;
+      border:1.5px solid var(--line); border-radius:99px; padding:.5rem 1.2rem; cursor:pointer;
+      transition:all .2s;
+    }
+    .tab:hover { border-color:var(--navy); }
+    .tab.active { background:var(--navy); border-color:var(--navy); color:var(--paper); }
+    .tab .count {
+      display:inline-block; min-width:1.5em; text-align:center; margin-left:.4rem;
+      background:rgba(0,31,101,.1); border-radius:99px; padding:.05rem .4rem; font-size:.68rem;
+    }
+    .tab.active .count { background:rgba(244,246,252,.2); }
+    .tab.danger { color:var(--error); border-color:rgba(194,52,42,.4); }
+    .tab.danger .count { background:rgba(194,52,42,.12); }
+    .tab.danger.active { background:var(--error); border-color:var(--error); color:#fff; }
+    .tab.danger.active .count { background:rgba(255,255,255,.25); }
+
+    /* duplicate group header row */
+    tr.dup-head td {
+      background:rgba(194,52,42,.07); color:var(--error);
+      font-family:'Lekton',monospace; font-size:.72rem; font-weight:700; letter-spacing:.12em;
+      text-transform:uppercase; border-top:2px solid rgba(194,52,42,.35);
+    }
+
+    /* ================= MODAL ================= */
+    .overlay {
+      position:fixed; inset:0; z-index:50;
+      background:rgba(1,10,38,.65); backdrop-filter:blur(3px);
+      display:flex; align-items:center; justify-content:center; padding:2rem;
+      animation:fade .2s ease-out;
+    }
+    @keyframes fade { from { opacity:0; } }
+    .modal {
+      background:var(--paper); border-radius:12px; width:min(1060px,100%);
+      max-height:92vh; display:flex; flex-direction:column; overflow:hidden;
+      box-shadow:0 30px 80px rgba(1,10,38,.5);
+      animation:pop .25s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes pop { from { transform:scale(.96) translateY(10px); opacity:0; } }
+
+    .modal-head {
+      display:flex; align-items:center; gap:1rem;
+      background:var(--navy); color:var(--paper); padding:1.1rem 1.6rem;
+    }
+    .modal-head .ref { font-family:'Lekton',monospace; font-size:.78rem; font-weight:700; letter-spacing:.16em; color:var(--powder); }
+    .modal-head h2 { font-family:'Bebas Neue'; font-weight:400; font-size:1.7rem; letter-spacing:.05em; line-height:1; }
+    .modal-head .idea { font-size:.8rem; opacity:.75; font-weight:500; }
+    .modal-head .spacer { flex:1; }
+    .close {
+      background:none; border:none; color:var(--paper); font-size:1.6rem; line-height:1;
+      cursor:pointer; opacity:.7; padding:.2rem .5rem;
+    }
+    .close:hover { opacity:1; }
+
+    .modal-body { overflow-y:auto; padding:1.6rem; }
+
+    .sect-label {
+      font-family:'Lekton',monospace; font-size:.7rem; font-weight:700;
+      letter-spacing:.2em; text-transform:uppercase; color:var(--navy);
+      margin-bottom:.8rem; display:flex; align-items:center; gap:.6rem;
+    }
+    .sect-label::after { content:''; flex:1; height:1.5px; background:var(--line); }
+
+    .info-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); gap:1rem; margin-bottom:1.8rem; }
+    .info-card { background:#fff; border:1.5px solid var(--line); border-radius:8px; padding:1rem 1.2rem; }
+    .info-card h4 { font-family:'Lekton',monospace; font-size:.66rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:rgba(14,14,14,.45); margin-bottom:.35rem; }
+    .info-card h4:not(:first-child) { margin-top:.9rem; }
+    .info-card p { font-size:.85rem; line-height:1.6; color:rgba(14,14,14,.85); }
+    .info-card a { color:var(--navy); font-weight:700; }
+    .member { padding:.5rem 0; }
+    .member + .member { border-top:1px solid var(--line); }
+    .deck-link {
+      display:inline-flex; align-items:center; gap:.5rem; margin-top:.2rem;
+      font-family:'Lekton',monospace; font-size:.78rem; font-weight:700; letter-spacing:.08em;
+      color:var(--navy); background:rgba(0,31,101,.07); border:1px solid var(--line);
+      border-radius:99px; padding:.45rem 1rem; text-decoration:none;
+    }
+    .deck-link:hover { background:var(--navy); color:var(--paper); }
+
+    /* payment verification — screenshot & txn side by side */
+    .pay-panel {
+      background:#fff; border:1.5px solid var(--navy); border-radius:10px;
+      overflow:hidden; box-shadow:0 10px 30px rgba(0,31,101,.12);
+    }
+    .pay-grid { display:grid; grid-template-columns:1fr 1fr; }
+    .shot-box {
+      background:repeating-conic-gradient(rgba(0,31,101,.04) 0% 25%, transparent 0% 50%) 0 0/24px 24px;
+      display:flex; align-items:center; justify-content:center; padding:1rem; min-height:320px;
+      border-right:1.5px solid var(--line);
+    }
+    .shot-box img { max-width:100%; max-height:420px; border-radius:6px; box-shadow:0 6px 20px rgba(1,10,38,.25); cursor:zoom-in; }
+    .shot-box .noimg { font-size:.82rem; color:rgba(14,14,14,.5); text-align:center; }
+    .shot-box .noimg a { color:var(--navy); font-weight:700; }
+    .txn { padding:1.4rem 1.6rem; display:flex; flex-direction:column; gap:1rem; }
+    .txn h4 { font-family:'Lekton',monospace; font-size:.66rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:rgba(14,14,14,.45); margin-bottom:.25rem; }
+    .txn .utr {
+      font-family:'Lekton',monospace; font-size:1.35rem; font-weight:700; letter-spacing:.1em;
+      color:var(--navy); background:rgba(0,31,101,.06); border:1.5px dashed var(--line);
+      border-radius:8px; padding:.7rem 1rem; word-break:break-all;
+    }
+    .txn .amount { font-family:'Bebas Neue'; font-size:2.4rem; color:var(--navy); line-height:1; }
+    .txn .meta { font-size:.8rem; color:rgba(14,14,14,.6); line-height:1.6; }
+
+    .verify-bar { border-top:1.5px solid var(--line); padding:1.1rem 1.6rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap; background:rgba(0,31,101,.03); }
+    .verify-bar .state { font-size:.84rem; font-weight:600; }
+    .verify-bar .spacer { flex:1; }
+    .btn-verify {
+      font-family:'Bebas Neue'; font-size:1.1rem; letter-spacing:.1em; text-transform:uppercase;
+      border-radius:6px; padding:.75rem 2.2rem; cursor:pointer; border:1.5px solid var(--ok);
+      background:var(--ok); color:#fff;
+      transition:transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s;
+    }
+    .btn-verify:hover { transform:translateY(-2px); box-shadow:0 10px 22px rgba(26,122,58,.35); }
+    .btn-verify.undo { background:transparent; color:var(--error); border-color:var(--error); }
+    .btn-verify:disabled { opacity:.5; cursor:wait; transform:none; }
+
+    .btn-del {
+      font-family:'Lekton',monospace; font-size:.74rem; font-weight:700; letter-spacing:.08em;
+      color:var(--error); background:none; border:1.5px solid transparent; border-radius:6px;
+      padding:.5rem .9rem; cursor:pointer;
+    }
+    .btn-del:hover { border-color:rgba(194,52,42,.4); background:rgba(194,52,42,.06); }
+    .del-confirm { display:inline-flex; align-items:center; gap:.6rem; font-size:.82rem; font-weight:600; color:var(--error); }
+    [hidden] { display:none !important; }
+    .btn-del-yes {
+      font-family:'Lekton',monospace; font-size:.72rem; font-weight:700; letter-spacing:.06em;
+      color:#fff; background:var(--error); border:none; border-radius:6px; padding:.45rem 1rem; cursor:pointer;
+    }
+    .btn-del-yes:disabled { opacity:.5; cursor:wait; }
+    .btn-del-no {
+      font-family:'Lekton',monospace; font-size:.72rem; font-weight:700; letter-spacing:.06em;
+      color:var(--ink); background:none; border:1.5px solid var(--line); border-radius:6px; padding:.45rem 1rem; cursor:pointer;
+    }
+
+    /* fullscreen image zoom */
+    .zoom { position:fixed; inset:0; z-index:60; background:rgba(1,10,38,.9); display:flex; align-items:center; justify-content:center; cursor:zoom-out; }
+    .zoom img { max-width:94vw; max-height:94vh; }
+
+    @media (max-width:760px) {
+      .pay-grid { grid-template-columns:1fr; }
+      .shot-box { border-right:none; border-bottom:1.5px solid var(--line); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <svg viewBox="0 0 100 130" fill="none"><path d="M2 10 H78 V128 H2 Z" stroke="currentColor" stroke-width="5"/><path d="M12 18 H88 V120 H12 Z" stroke="currentColor" stroke-width="5"/><path d="M22 26 H98 V112 H22 Z" stroke="currentColor" stroke-width="5"/></svg>
+    <h1>Den Zero · Registrations</h1>
+    <div class="spacer"></div>
+    <a class="hbtn" href="/api/admin/export.csv">Export CSV</a>
+    <button class="hbtn" id="logoutBtn">Log out</button>
+  </header>
+
+  <div class="stats" id="stats"></div>
+  <div class="tabs" id="tabs"></div>
+
+  <main>
+    <table>
+      <thead>
+        <tr>
+          <th>Ref</th><th>Team</th><th>Idea</th><th>Stage</th><th>Lead</th>
+          <th>Payment</th><th>Submitted</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"><tr><td colspan="7" class="empty">Loading…</td></tr></tbody>
+    </table>
+  </main>
+
+  <div id="modalRoot"></div>
+
+  <script>
+    const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) =>
+      ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const api = (p) => new URL(p, location.origin).href;
+
+    let rows = [];
+    let openIdx = null;
+    let filter = 'all';
+
+    /* ---------- duplicate UTR detection ----------
+       Exact duplicates are blocked at submission (DB unique constraint),
+       so this catches disguised ones: spacing, dashes, case, "UPI" prefixes —
+       anything whose digit-core matches or contains another's. */
+    const normUtr = (u) => {
+      const digits = String(u || '').replace(/\D/g, '');
+      return digits.length >= 8 ? digits : String(u || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    };
+
+    const findDupGroups = () => {
+      const n = rows.length;
+      const parent = [...Array(n).keys()];
+      const find = (x) => (parent[x] === x ? x : (parent[x] = find(parent[x])));
+      const union = (a, b) => { parent[find(a)] = find(b); };
+
+      const norms = rows.map((r) => normUtr(r.utr));
+      for (let i = 0; i < n; i++) {
+        for (let j = i + 1; j < n; j++) {
+          const a = norms[i], b = norms[j];
+          if (!a || !b) continue;
+          if (a === b || (a.length >= 10 && b.includes(a)) || (b.length >= 10 && a.includes(b)))
+            union(i, j);
+        }
+      }
+      const groups = {};
+      for (let i = 0; i < n; i++) {
+        const root = find(i);
+        (groups[root] = groups[root] || []).push(i);
+      }
+      return Object.values(groups).filter((g) => g.length > 1);
+    };
+
+    /* ---------- table ---------- */
+    const rowHtml = (r, i) => `
+      <tr class="row" onclick="openModal(${i})">
+        <td class="mono">${esc(r.ref_id)}</td>
+        <td><b>${esc(r.team_name)}</b><br><small>${r.team_size} member${r.team_size>1?'s':''}</small></td>
+        <td>${esc(r.idea_name)}</td>
+        <td>${esc(r.stage)}</td>
+        <td>${esc(r.lead_name)}<br><small class="mono">${esc(r.lead_whatsapp)}</small></td>
+        <td><span class="badge ${r.payment_verified?'ok':'pending'}">${r.payment_verified?'verified':'pending'}</span></td>
+        <td>${new Date(r.created_at).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'})}</td>
+      </tr>`;
+
+    const render = () => {
+      const dupGroups = findDupGroups();
+      const counts = {
+        all: rows.length,
+        pending: rows.filter((r) => !r.payment_verified).length,
+        verified: rows.filter((r) => r.payment_verified).length,
+        dups: dupGroups.reduce((n, g) => n + g.length, 0),
+      };
+
+      document.getElementById('stats').innerHTML = `
+        <div class="stat"><b>${counts.all}</b><span>Teams</span></div>
+        <div class="stat"><b>${rows.reduce((n,r)=>n+r.team_size,0)}</b><span>Participants</span></div>
+        <div class="stat"><b>${counts.verified}</b><span>Verified</span></div>
+        <div class="stat"><b>₹${counts.verified*999}</b><span>Collected</span></div>`;
+
+      document.getElementById('tabs').innerHTML = `
+        <button class="tab ${filter==='all'?'active':''}" onclick="setFilter('all')">All<span class="count">${counts.all}</span></button>
+        <button class="tab ${filter==='pending'?'active':''}" onclick="setFilter('pending')">Pending<span class="count">${counts.pending}</span></button>
+        <button class="tab ${filter==='verified'?'active':''}" onclick="setFilter('verified')">Verified<span class="count">${counts.verified}</span></button>
+        <button class="tab danger ${filter==='dups'?'active':''}" onclick="setFilter('dups')">⚠ Duplicates<span class="count">${counts.dups}</span></button>`;
+
+      const tbody = document.getElementById('tbody');
+
+      if (filter === 'dups') {
+        if (!dupGroups.length) {
+          tbody.innerHTML = '<tr><td colspan="7" class="empty">No duplicate transaction IDs detected. All clear.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = dupGroups.map((g, gi) => `
+          <tr class="dup-head"><td colspan="7">⚠ Group ${gi + 1} — ${g.length} registrations share transaction core “${esc(normUtr(rows[g[0]].utr))}”</td></tr>
+          ${g.map((i) => rowHtml(rows[i], i)).join('')}`).join('');
+        return;
+      }
+
+      const visible = rows
+        .map((r, i) => ({ r, i }))
+        .filter(({ r }) =>
+          filter === 'pending' ? !r.payment_verified :
+          filter === 'verified' ? r.payment_verified : true);
+
+      tbody.innerHTML = visible.length
+        ? visible.map(({ r, i }) => rowHtml(r, i)).join('')
+        : `<tr><td colspan="7" class="empty">${rows.length ? 'Nothing in this filter.' : 'No registrations yet.'}</td></tr>`;
+    };
+
+    window.setFilter = (f) => { filter = f; render(); };
+
+    /* ---------- modal ---------- */
+    const isImage = (p) => /\.(png|jpe?g|webp|gif)$/i.test(p || '');
+
+    window.openModal = (i) => {
+      openIdx = i;
+      const r = rows[i];
+      const shot = `/files/${r.screenshot_path}`;
+      document.getElementById('modalRoot').innerHTML = `
+        <div class="overlay" onclick="if(event.target===this)closeModal()">
+          <div class="modal" role="dialog" aria-modal="true">
+            <div class="modal-head">
+              <div>
+                <div class="ref">${esc(r.ref_id)}</div>
+                <h2>${esc(r.team_name)}</h2>
+                <div class="idea">${esc(r.idea_name)} · ${esc(r.stage)}</div>
+              </div>
+              <div class="spacer"></div>
+              <span class="badge ${r.payment_verified?'ok':'pending'}" id="modalBadge">${r.payment_verified?'verified':'pending'}</span>
+              <button class="close" onclick="closeModal()" aria-label="Close">×</button>
+            </div>
+
+            <div class="modal-body">
+              <p class="sect-label">Team &amp; Contact</p>
+              <div class="info-grid">
+                <div class="info-card">
+                  <h4>Members</h4>
+                  ${r.members.map(m=>`
+                    <div class="member">
+                      <p><b>${esc(m.name)}</b> — ${esc(m.college)}</p>
+                      <p>${esc(m.course)}${m.dob ? ` · DOB ${esc(m.dob)}` : ''}</p>
+                      <p>${esc(m.email)} · <span class="mono">${esc(m.phone)}</span>
+                      ${m.linkedin?` · <a href="${esc(m.linkedin)}" target="_blank" rel="noopener">LinkedIn</a>`:''}</p>
+                    </div>`).join('')}
+                </div>
+                <div class="info-card">
+                  <h4>Team lead</h4>
+                  <p><b>${esc(r.lead_name)}</b><br>WhatsApp: <span class="mono">${esc(r.lead_whatsapp)}</span><br>${esc(r.lead_email)}</p>
+                  <h4>Looking for</h4><p>${(r.looking_for||[]).map(esc).join(', ')}</p>
+                  <h4>Heard about us via</h4><p>${esc(r.source)}</p>
+                </div>
+              </div>
+
+              <p class="sect-label">The Idea</p>
+              <div class="info-grid">
+                <div class="info-card">
+                  <h4>Problem</h4><p>${esc(r.problem)}</p>
+                  <h4>Solution</h4><p>${esc(r.solution)}</p>
+                </div>
+                <div class="info-card">
+                  <h4>Target audience</h4><p>${esc(r.audience)}</p>
+                  <h4>What makes it unique</h4><p>${esc(r.unique_edge)}</p>
+                  <h4>Current progress</h4><p>${esc(r.progress)}</p>
+                  <h4>Ideal investor</h4><p>${esc(r.ideal_investor)}</p>
+                  <h4>Pitch deck</h4>
+                  <a class="deck-link" href="/files/${esc(r.deck_path)}" target="_blank">📄 Open pitch deck</a>
+                </div>
+              </div>
+
+              <p class="sect-label">Payment Verification</p>
+              <div class="pay-panel">
+                <div class="pay-grid">
+                  <div class="shot-box">
+                    ${isImage(r.screenshot_path)
+                      ? `<img src="${esc(shot)}" alt="Payment screenshot" onclick="zoomImg(this.src)" />`
+                      : `<p class="noimg">Screenshot uploaded as PDF —<br><a href="${esc(shot)}" target="_blank">open in new tab</a></p>`}
+                  </div>
+                  <div class="txn">
+                    <div><h4>Transaction ID / UTR</h4><div class="utr">${esc(r.utr)}</div></div>
+                    <div><h4>Expected amount</h4><div class="amount">₹999</div></div>
+                    <div class="meta">
+                      Submitted ${new Date(r.created_at).toLocaleString('en-IN',{dateStyle:'long',timeStyle:'short'})}<br>
+                      Match the UTR and amount against the bank / UPI statement before verifying.
+                    </div>
+                  </div>
+                </div>
+                <div class="verify-bar">
+                  <button class="btn-del" id="delBtn" onclick="askDelete()">🗑 Delete entry</button>
+                  <span class="del-confirm" id="delConfirm" hidden>
+                    Delete permanently?
+                    <button class="btn-del-yes" id="delYes" onclick="doDelete()">Yes, delete</button>
+                    <button class="btn-del-no" onclick="cancelDelete()">Cancel</button>
+                  </span>
+                  <div class="spacer"></div>
+                  <span class="state" id="verifyState">${r.payment_verified ? '✓ Payment verified' : 'Payment pending verification'}</span>
+                  <button class="btn-verify ${r.payment_verified?'undo':''}" id="verifyBtn" onclick="verify()">
+                    ${r.payment_verified ? 'Unverify' : 'Verify payment'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      document.body.style.overflow = 'hidden';
+    };
+
+    window.closeModal = () => {
+      openIdx = null;
+      document.getElementById('modalRoot').innerHTML = '';
+      document.body.style.overflow = '';
+    };
+
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+    window.zoomImg = (src) => {
+      const z = document.createElement('div');
+      z.className = 'zoom';
+      z.innerHTML = `<img src="${esc(src)}" alt="Payment screenshot enlarged" />`;
+      z.onclick = () => z.remove();
+      document.body.appendChild(z);
+    };
+
+    /* ---------- actions ---------- */
+    window.verify = async () => {
+      const r = rows[openIdx];
+      const btn = document.getElementById('verifyBtn');
+      btn.disabled = true;
+      const res = await fetch(api(`/api/admin/registrations/${r.id}/verify`), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ verified: !r.payment_verified }),
+      });
+      if (res.status === 401) return location.reload();
+      const json = await res.json();
+      rows[openIdx].payment_verified = json.payment_verified;
+      render();
+      openModal(openIdx);
+    };
+
+    /* two-step delete */
+    window.askDelete = () => {
+      document.getElementById('delBtn').hidden = true;
+      document.getElementById('delConfirm').hidden = false;
+    };
+    window.cancelDelete = () => {
+      document.getElementById('delConfirm').hidden = true;
+      document.getElementById('delBtn').hidden = false;
+    };
+    window.doDelete = async () => {
+      const r = rows[openIdx];
+      const yes = document.getElementById('delYes');
+      yes.disabled = true; yes.textContent = 'Deleting…';
+      const res = await fetch(api(`/api/admin/registrations/${r.id}/delete`), { method: 'POST' });
+      if (res.status === 401) return location.reload();
+      if (!res.ok) { yes.disabled = false; yes.textContent = 'Yes, delete'; alert('Delete failed.'); return; }
+      rows.splice(openIdx, 1);
+      closeModal();
+      render();
+    };
+
+    document.getElementById('logoutBtn').onclick = async () => {
+      await fetch(api('/api/admin/logout'), { method: 'POST' });
+      location.reload();
+    };
+
+    fetch(api('/api/admin/registrations'))
+      .then((r) => (r.status === 401 ? location.reload() : r.json()))
+      .then((data) => { if (data) { rows = data; render(); } });
+  </script>
+</body>
+</html>
