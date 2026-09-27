@@ -48,6 +48,10 @@ const cleanupTmp = (files) =>
     .flat()
     .forEach((f) => fs.unlink(f.path, () => {}));
 
+/* Registration fee per team, by city (₹). The client only displays these;
+   the fee stored with each registration always comes from here. */
+const CITY_FEES = { Pune: 1499, Bangalore: 2499, Mumbai: 1999 };
+
 /* ---------------------------------------------------------
    POST /api/register
    --------------------------------------------------------- */
@@ -68,6 +72,9 @@ app.post('/api/register', (req, res) => {
 
     try {
       /* ---- validate ---- */
+      const fee = Object.hasOwn(CITY_FEES, b.city) ? CITY_FEES[b.city] : null;
+      if (!fee) throw badReq('Select your city (Pune, Bangalore or Mumbai).');
+
       const teamSize = parseInt(b.teamSize, 10);
       if (![1, 2, 3].includes(teamSize)) throw badReq('Invalid team size.');
 
@@ -115,13 +122,13 @@ app.post('/api/register', (req, res) => {
       /* ---- insert ---- */
       const { rows } = await pool.query(
         `INSERT INTO registrations
-           (team_name, team_size, members, lead_name, lead_whatsapp, lead_email,
+           (city, fee, team_name, team_size, members, lead_name, lead_whatsapp, lead_email,
             idea_name, stage, problem, solution, audience, unique_edge, progress,
             ideal_investor, utr, source, looking_for)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19)
          RETURNING id`,
         [
-          b.teamName.trim(), teamSize, JSON.stringify(members),
+          b.city, fee, b.teamName.trim(), teamSize, JSON.stringify(members),
           b.leadName.trim(), b.leadWhatsapp.trim(), b.leadEmail.trim(),
           b.ideaName.trim(), b.stage, b.problem.trim(), b.solution.trim(),
           b.audience.trim(), b.unique.trim(), b.progress.trim(),
@@ -262,7 +269,7 @@ app.post('/api/admin/registrations/:id/delete', adminAuth, async (req, res) => {
 app.get('/api/admin/export.csv', adminAuth, async (_req, res) => {
   const { rows } = await pool.query('SELECT * FROM registrations ORDER BY id');
   const cols = [
-    'ref_id', 'team_name', 'team_size', 'lead_name', 'lead_whatsapp', 'lead_email',
+    'ref_id', 'city', 'fee', 'team_name', 'team_size', 'lead_name', 'lead_whatsapp', 'lead_email',
     'idea_name', 'stage', 'ideal_investor', 'utr', 'payment_verified', 'source', 'created_at',
   ];
   const esc = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;

@@ -46,7 +46,7 @@
       </nav>
 
       <footer class="brand-foot">
-        <span>₹999 / team</span>
+        <span id="footCity">Pune · Bangalore · Mumbai</span>
         <span>Teams of 1–3</span>
         <span>@denzero</span>
       </footer>
@@ -65,6 +65,7 @@
     <div class="progress-rail" aria-hidden="true"><div class="progress-rail__fill" id="progressFill"></div></div>
 
     <form id="regForm" class="form" novalidate>
+      <input type="hidden" name="city" id="cityInput" />
 
       <!-- ░░ STEP 1 · TEAM DETAILS ░░ -->
       <section class="step is-active" data-step="0" aria-labelledby="s1-title">
@@ -223,12 +224,13 @@
       <section class="step" data-step="4" aria-labelledby="s5-title">
         <p class="step__kicker">05. Payment</p>
         <h2 class="step__title" id="s5-title">Secure your<br/>spot in the den.</h2>
-        <p class="step__lede">One flat fee per team. Covers evaluation, mentor feedback and event access.</p>
+        <p class="step__lede">One flat fee per team for your city. Covers evaluation, mentor feedback and event access.</p>
 
         <div class="pay-card">
           <div class="pay-card__amount">
             <span class="pay-card__label">Registration fee</span>
-            <span class="pay-card__price">₹999<small>/ team</small></span>
+            <span class="pay-card__price"><span id="payFee">₹—</span><small>/ team</small></span>
+            <span class="pay-card__city"><span id="payCity">No city picked</span> · <button type="button" class="pay-card__change" data-open-city>change</button></span>
           </div>
           <div class="pay-card__upi">
             <span class="pay-card__label">Pay via UPI</span>
@@ -329,6 +331,26 @@
       <p class="success__foot">Questions? Write to <a href="mailto:hello@denzero.in">hello@denzero.in</a></p>
     </section>
   </main>
+
+  <!-- ============ CITY GATE (opens on page load, before the form) ============ -->
+  <div class="city-gate" id="cityGate" role="dialog" aria-modal="true" aria-labelledby="cityGateTitle" hidden>
+    <div class="city-gate__card">
+      <p class="step__kicker">Welcome to Den Zero</p>
+      <h2 class="step__title" id="cityGateTitle">Hi founder 👋<br/>Which city are you from?</h2>
+      <p class="step__lede">You'll pitch at the Den Zero edition in your city.</p>
+      <div class="city-grid">
+        <button type="button" class="city-card" data-city="Pune" data-fee="1499">
+          <span class="city-card__name">Pune</span>
+        </button>
+        <button type="button" class="city-card" data-city="Bangalore" data-fee="2499">
+          <span class="city-card__name">Bangalore</span>
+        </button>
+        <button type="button" class="city-card" data-city="Mumbai" data-fee="1999">
+          <span class="city-card__name">Mumbai</span>
+        </button>
+      </div>
+    </div>
+  </div>
 
   <script src="app.js"></script>
 </body>

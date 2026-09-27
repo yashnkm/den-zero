@@ -730,6 +730,102 @@ body {
 }
 .pay-card__alt b { font-family: var(--font-mono); font-weight: 700; color: var(--navy); letter-spacing: 0.04em; }
 
+.pay-card__city {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--powder);
+}
+
+.pay-card__change {
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: var(--paper);
+  background: none;
+  border: none;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+/* ============================================================
+   CITY GATE — greeting popup, opens on page load
+   ============================================================ */
+
+.city-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(1, 10, 38, 0.65);
+  backdrop-filter: blur(4px);
+  animation: gate-fade 0.25s var(--ease-out) both;
+}
+
+.city-gate[hidden] { display: none; }
+
+@keyframes gate-fade { from { opacity: 0; } }
+
+.city-gate__card {
+  width: min(620px, 100%);
+  max-height: calc(100vh - 3rem);
+  overflow-y: auto;
+  background: var(--paper);
+  border-radius: 12px;
+  padding: clamp(1.8rem, 5vw, 3rem);
+  box-shadow: 0 30px 80px rgba(1, 10, 38, 0.5);
+  animation: step-in 0.45s var(--ease-spring) both;
+}
+
+.city-gate .step__lede { margin-bottom: 1.8rem; }
+
+.city-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.8rem;
+}
+
+.city-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  align-items: center;
+  padding: 1.4rem 1.1rem;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.25s var(--ease-spring);
+}
+
+.city-card:hover { border-color: var(--navy); transform: translateY(-2px); }
+
+.city-card:focus-visible { outline: 2px solid var(--navy); outline-offset: 2px; }
+
+.city-card__name {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.city-card.is-selected {
+  background: var(--navy);
+  border-color: var(--navy);
+  box-shadow: 0 10px 24px rgba(0, 31, 101, 0.3);
+}
+
+.city-card.is-selected .city-card__name { color: var(--paper); }
+
 /* ============================================================
    PILLS + CHECKS
    ============================================================ */
@@ -1018,6 +1114,7 @@ body {
   .member-card__body { grid-template-columns: 1fr; }
   .member-card__body .field-group.span-2 { grid-column: span 1; }
   .pay-card { grid-template-columns: 1fr; }
+  .city-grid { grid-template-columns: 1fr; }
   .size-picker { flex-direction: column; }
   .form-nav { flex-direction: column-reverse; }
   .btn { justify-content: center; }

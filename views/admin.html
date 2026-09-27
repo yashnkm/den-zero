@@ -70,6 +70,9 @@
     .tab.danger .count { background:rgba(194,52,42,.12); }
     .tab.danger.active { background:var(--error); border-color:var(--error); color:#fff; }
     .tab.danger.active .count { background:rgba(255,255,255,.25); }
+    .tab-sep { width:1.5px; background:var(--line); margin:0 .4rem; }
+    .stat small { display:block; margin-top:.35rem; font-family:'Lekton',monospace; font-size:.7rem; font-weight:700; letter-spacing:.06em; color:var(--navy); }
+    .city-tag { font-family:'Lekton',monospace; font-size:.72rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--navy); }
 
     /* duplicate group header row */
     tr.dup-head td {
@@ -214,11 +217,11 @@
     <table>
       <thead>
         <tr>
-          <th>Ref</th><th>Team</th><th>Idea</th><th>Stage</th><th>Lead</th>
+          <th>Ref</th><th>City</th><th>Team</th><th>Idea</th><th>Stage</th><th>Lead</th>
           <th>Payment</th><th>Submitted</th>
         </tr>
       </thead>
-      <tbody id="tbody"><tr><td colspan="7" class="empty">Loading…</td></tr></tbody>
+      <tbody id="tbody"><tr><td colspan="8" class="empty">Loading…</td></tr></tbody>
     </table>
   </main>
 
@@ -232,6 +235,11 @@
     let rows = [];
     let openIdx = null;
     let filter = 'all';
+    let cityFilter = 'all';
+
+    const CITIES = ['Pune', 'Bangalore', 'Mumbai'];
+    const inr = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`;
+    const sumFees = (list) => list.reduce((n, r) => n + r.fee, 0);
 
     /* ---------- duplicate UTR detection ----------
        Exact duplicates are blocked at submission (DB unique constraint),
@@ -269,6 +277,7 @@
     const rowHtml = (r, i) => `
       <tr class="row" onclick="openModal(${i})">
         <td class="mono">${esc(r.ref_id)}</td>
+        <td><span class="city-tag">${esc(r.city)}</span><br><small class="mono">${inr(r.fee)}</small></td>
         <td><b>${esc(r.team_name)}</b><br><small>${r.team_size} member${r.team_size>1?'s':''}</small></td>
         <td>${esc(r.idea_name)}</td>
         <td>${esc(r.stage)}</td>
@@ -278,51 +287,70 @@
       </tr>`;
 
     const render = () => {
+      /* duplicates are checked across all cities — a reused UTR is suspect wherever it appears */
       const dupGroups = findDupGroups();
+      const inCity = (r) => cityFilter === 'all' || r.city === cityFilter;
+      const scoped = rows.filter(inCity);
+      const verified = scoped.filter((r) => r.payment_verified);
       const counts = {
-        all: rows.length,
-        pending: rows.filter((r) => !r.payment_verified).length,
-        verified: rows.filter((r) => r.payment_verified).length,
+        all: scoped.length,
+        pending: scoped.length - verified.length,
+        verified: verified.length,
         dups: dupGroups.reduce((n, g) => n + g.length, 0),
       };
 
+      const cityStats = cityFilter === 'all'
+        ? CITIES.map((c) => {
+            const cr = rows.filter((r) => r.city === c);
+            const cv = cr.filter((r) => r.payment_verified);
+            return `<div class="stat"><b>${cr.length}</b><span>${c} teams</span><small>${inr(sumFees(cv))} of ${inr(sumFees(cr))} collected</small></div>`;
+          }).join('')
+        : '';
+
       document.getElementById('stats').innerHTML = `
         <div class="stat"><b>${counts.all}</b><span>Teams</span></div>
-        <div class="stat"><b>${rows.reduce((n,r)=>n+r.team_size,0)}</b><span>Participants</span></div>
+        <div class="stat"><b>${scoped.reduce((n,r)=>n+r.team_size,0)}</b><span>Participants</span></div>
         <div class="stat"><b>${counts.verified}</b><span>Verified</span></div>
-        <div class="stat"><b>₹${counts.verified*999}</b><span>Collected</span></div>`;
+        <div class="stat"><b>${inr(sumFees(verified))}</b><span>Collected</span><small>${inr(sumFees(scoped))} expected</small></div>
+        ${cityStats}`;
 
+      const cityCount = (c) => (c === 'all' ? rows.length : rows.filter((r) => r.city === c).length);
       document.getElementById('tabs').innerHTML = `
         <button class="tab ${filter==='all'?'active':''}" onclick="setFilter('all')">All<span class="count">${counts.all}</span></button>
         <button class="tab ${filter==='pending'?'active':''}" onclick="setFilter('pending')">Pending<span class="count">${counts.pending}</span></button>
         <button class="tab ${filter==='verified'?'active':''}" onclick="setFilter('verified')">Verified<span class="count">${counts.verified}</span></button>
-        <button class="tab danger ${filter==='dups'?'active':''}" onclick="setFilter('dups')">⚠ Duplicates<span class="count">${counts.dups}</span></button>`;
+        <button class="tab danger ${filter==='dups'?'active':''}" onclick="setFilter('dups')">⚠ Duplicates<span class="count">${counts.dups}</span></button>
+        <span class="tab-sep"></span>
+        ${['all', ...CITIES].map((c) => `
+          <button class="tab ${cityFilter===c?'active':''}" onclick="setCity('${c}')">${c==='all'?'All cities':c}<span class="count">${cityCount(c)}</span></button>`).join('')}`;
 
       const tbody = document.getElementById('tbody');
 
       if (filter === 'dups') {
         if (!dupGroups.length) {
-          tbody.innerHTML = '<tr><td colspan="7" class="empty">No duplicate transaction IDs detected. All clear.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="8" class="empty">No duplicate transaction IDs detected. All clear.</td></tr>';
           return;
         }
         tbody.innerHTML = dupGroups.map((g, gi) => `
-          <tr class="dup-head"><td colspan="7">⚠ Group ${gi + 1} — ${g.length} registrations share transaction core “${esc(normUtr(rows[g[0]].utr))}”</td></tr>
+          <tr class="dup-head"><td colspan="8">⚠ Group ${gi + 1} — ${g.length} registrations share transaction core “${esc(normUtr(rows[g[0]].utr))}” (all cities)</td></tr>
           ${g.map((i) => rowHtml(rows[i], i)).join('')}`).join('');
         return;
       }
 
       const visible = rows
         .map((r, i) => ({ r, i }))
+        .filter(({ r }) => inCity(r))
         .filter(({ r }) =>
           filter === 'pending' ? !r.payment_verified :
           filter === 'verified' ? r.payment_verified : true);
 
       tbody.innerHTML = visible.length
         ? visible.map(({ r, i }) => rowHtml(r, i)).join('')
-        : `<tr><td colspan="7" class="empty">${rows.length ? 'Nothing in this filter.' : 'No registrations yet.'}</td></tr>`;
+        : `<tr><td colspan="8" class="empty">${rows.length ? 'Nothing in this filter.' : 'No registrations yet.'}</td></tr>`;
     };
 
     window.setFilter = (f) => { filter = f; render(); };
+    window.setCity = (c) => { cityFilter = c; render(); };
 
     /* ---------- modal ---------- */
     const isImage = (p) => /\.(png|jpe?g|webp|gif)$/i.test(p || '');
@@ -338,7 +366,7 @@
               <div>
                 <div class="ref">${esc(r.ref_id)}</div>
                 <h2>${esc(r.team_name)}</h2>
-                <div class="idea">${esc(r.idea_name)} · ${esc(r.stage)}</div>
+                <div class="idea">${esc(r.city)} · ${esc(r.idea_name)} · ${esc(r.stage)}</div>
               </div>
               <div class="spacer"></div>
               <span class="badge ${r.payment_verified?'ok':'pending'}" id="modalBadge">${r.payment_verified?'verified':'pending'}</span>
@@ -392,7 +420,7 @@
                   </div>
                   <div class="txn">
                     <div><h4>Transaction ID / UTR</h4><div class="utr">${esc(r.utr)}</div></div>
-                    <div><h4>Expected amount</h4><div class="amount">₹999</div></div>
+                    <div><h4>Expected amount · ${esc(r.city)}</h4><div class="amount">${inr(r.fee)}</div></div>
                     <div class="meta">
                       Submitted ${new Date(r.created_at).toLocaleString('en-IN',{dateStyle:'long',timeStyle:'short'})}<br>
                       Match the UTR and amount against the bank / UPI statement before verifying.

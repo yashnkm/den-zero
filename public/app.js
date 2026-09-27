@@ -417,12 +417,58 @@
   });
 
   /* ---------------------------------------------------------
-     10. Submit → success
+     10. City gate — greets on page load; city sets the fee
+         (display only — the server stores its own fee per city)
+     --------------------------------------------------------- */
+  const cityGate  = document.getElementById('cityGate');
+  const cityInput = document.getElementById('cityInput');
+  const behind    = [document.querySelector('.brand-panel'), document.querySelector('.form-side')];
+  const inr = (n) => `₹${n.toLocaleString('en-IN')}`;
+
+  const openCityGate = () => {
+    cityGate.hidden = false;
+    behind.forEach((el) => (el.inert = true));
+    document.body.style.overflow = 'hidden';
+    (cityGate.querySelector('.city-card.is-selected') || cityGate.querySelector('.city-card')).focus();
+  };
+
+  const closeCityGate = () => {
+    cityGate.hidden = true;
+    behind.forEach((el) => (el.inert = false));
+    document.body.style.overflow = '';
+  };
+
+  cityGate.querySelectorAll('.city-card').forEach((card) =>
+    card.addEventListener('click', () => {
+      const { city, fee } = card.dataset;
+      cityInput.value = city;
+      document.getElementById('payFee').textContent = inr(+fee);
+      document.getElementById('payCity').textContent = `${city} edition`;
+      document.getElementById('footCity').textContent = `${city} edition`;
+      cityGate.querySelectorAll('.city-card').forEach((c) => c.classList.toggle('is-selected', c === card));
+      closeCityGate();
+    })
+  );
+
+  document.querySelectorAll('[data-open-city]').forEach((b) => b.addEventListener('click', openCityGate));
+
+  // Picking a city is mandatory the first time; after that, Esc / backdrop close it.
+  cityGate.addEventListener('click', (e) => { if (e.target === cityGate && cityInput.value) closeCityGate(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !cityGate.hidden && cityInput.value) closeCityGate();
+  });
+
+  // Greet on load — the gate sits under the preloader and is revealed as it lifts.
+  openCityGate();
+
+  /* ---------------------------------------------------------
+     11. Submit → success
      --------------------------------------------------------- */
   const submitError = document.getElementById('submitError');
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (!cityInput.value) return openCityGate();
     if (!validateStep(current)) return;
 
     submitError.hidden = true;
