@@ -320,11 +320,11 @@
     }
   });
 
-  // allow jumping back via the sidebar index (only to completed steps)
+  // allow jumping back via the sidebar index (only to completed steps, and not once saved for payment)
   indexItems.forEach((li) => {
     li.addEventListener('click', () => {
       const target = +li.dataset.step;
-      if (target < current) show(target);
+      if (target < current && !backBtn.disabled) show(target);
     });
   });
 
@@ -400,30 +400,21 @@
   };
 
   wireDropzone('deckZone', 'deckFile', { accept: ['pdf'], maxMB: 10 });
-  wireDropzone('shotZone', 'shotFile', { accept: ['image', 'pdf', '.png', '.jpg', '.jpeg', '.webp'], maxMB: 5 });
 
   /* ---------------------------------------------------------
-     9. Copy UPI
+     9. City gate — greets on page load; city sets the fee
+        (display only — the server creates the order amount itself)
      --------------------------------------------------------- */
-  const copyBtn = document.getElementById('copyUpi');
-  copyBtn.addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText(document.getElementById('upiId').textContent.trim());
-      copyBtn.textContent = 'Copied ✓';
-      setTimeout(() => (copyBtn.textContent = 'Copy ID'), 1800);
-    } catch {
-      copyBtn.textContent = 'Select & copy';
-    }
-  });
-
-  /* ---------------------------------------------------------
-     10. City gate — greets on page load; city sets the fee
-         (display only — the server stores its own fee per city)
-     --------------------------------------------------------- */
-  const cityGate  = document.getElementById('cityGate');
-  const cityInput = document.getElementById('cityInput');
-  const behind    = [document.querySelector('.brand-panel'), document.querySelector('.form-side')];
+  const cityGate    = document.getElementById('cityGate');
+  const cityInput   = document.getElementById('cityInput');
+  const submitLabel = document.getElementById('submitLabel');
+  const behind      = [document.querySelector('.brand-panel'), document.querySelector('.form-side')];
   const inr = (n) => `₹${n.toLocaleString('en-IN')}`;
+  let selectedFee = 0;
+
+  const setPayLabel = () => {
+    submitLabel.textContent = selectedFee ? `Pay ${inr(selectedFee)} & enter the Den` : 'Pay & enter the Den';
+  };
 
   const openCityGate = () => {
     cityGate.hidden = false;
@@ -442,10 +433,12 @@
     card.addEventListener('click', () => {
       const { city, fee } = card.dataset;
       cityInput.value = city;
-      document.getElementById('payFee').textContent = inr(+fee);
+      selectedFee = +fee;
+      document.getElementById('payFee').textContent = inr(selectedFee);
       document.getElementById('payCity').textContent = `${city} edition`;
       document.getElementById('footCity').textContent = `${city} edition`;
       cityGate.querySelectorAll('.city-card').forEach((c) => c.classList.toggle('is-selected', c === card));
+      setPayLabel();
       closeCityGate();
     })
   );
@@ -462,44 +455,104 @@
   openCityGate();
 
   /* ---------------------------------------------------------
-     11. Submit → success
+     10. Submit → save registration → Razorpay checkout → verify → success
      --------------------------------------------------------- */
   const submitError = document.getElementById('submitError');
+  let pending = null;           // { refId, keyId, order, prefill, city } once the registration is saved
+  let awaitingConfirm = false;  // paid, but the server couldn't confirm yet — never offer to pay again
+
+  const showError = (msg) => {
+    submitError.textContent = msg;
+    submitError.hidden = false;
+    submitError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
+  // Once saved, the order amount is fixed: no going back to edit, no city change.
+  const lockRegistration = () => {
+    backBtn.disabled = true;
+    document.getElementById('payCityChange').hidden = true;
+  };
+
+  const openCheckout = () => new Promise((resolve, reject) => {
+    if (!window.Razorpay) {
+      return reject(new Error('The payment window could not load. Check your connection and try again.'));
+    }
+    let lastFailure = '';
+    const rzp = new window.Razorpay({
+      key: pending.keyId,
+      order_id: pending.order.id,
+      amount: pending.order.amount,
+      currency: pending.order.currency,
+      name: 'Den Zero',
+      description: `${pending.city} registration · ${pending.refId}`,
+      prefill: pending.prefill,
+      notes: { ref_id: pending.refId },
+      theme: { color: '#001F65' },
+      handler: resolve,
+      modal: {
+        confirm_close: true,
+        ondismiss: () => reject(new Error(
+          `${lastFailure ? `${lastFailure} ` : ''}Payment was not completed. Your details are saved; press Pay to try again.`
+        )),
+      },
+    });
+    // Checkout lets them retry inside the window; remember why it failed for the message.
+    rzp.on('payment.failed', (r) => { lastFailure = r.error?.description || ''; });
+    rzp.open();
+  });
+
+  const showSuccess = (refId, paymentId) => {
+    document.getElementById('refId').textContent = refId;
+    document.getElementById('payId').textContent = paymentId;
+    form.hidden = true;
+    document.querySelector('.progress-rail').style.opacity = '0';
+    const success = document.getElementById('successScreen');
+    success.hidden = false;
+    success.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    indexItems.forEach((li) => { li.classList.remove('is-current'); li.classList.add('is-done'); });
+    progressFill.style.width = '100%';
+  };
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (awaitingConfirm) return;
     if (!cityInput.value) return openCityGate();
     if (!validateStep(current)) return;
 
     submitError.hidden = true;
     submitBtn.disabled = true;
-    submitBtn.firstChild.textContent = 'Submitting… ';
 
     try {
-      const res = await fetch('/api/register', {
+      if (!pending) {
+        submitLabel.textContent = 'Saving your details…';
+        const res = await fetch('/api/register', { method: 'POST', body: new FormData(form) });
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(json.error || `Submission failed (${res.status}). Please try again.`);
+        pending = json;
+        lockRegistration();
+      }
+
+      submitLabel.textContent = 'Waiting for payment…';
+      const paid = await openCheckout();
+
+      submitLabel.textContent = 'Confirming payment…';
+      const res = await fetch('/api/payment/verify', {
         method: 'POST',
-        body: new FormData(form),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(paid),
       });
       const json = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(json.error || `Submission failed (${res.status}). Please try again.`);
-
-      document.getElementById('refId').textContent = json.refId;
-
-      form.hidden = true;
-      document.querySelector('.progress-rail').style.opacity = '0';
-      const success = document.getElementById('successScreen');
-      success.hidden = false;
-      success.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-      indexItems.forEach((li) => { li.classList.remove('is-current'); li.classList.add('is-done'); });
-      progressFill.style.width = '100%';
+      if (!res.ok) {
+        awaitingConfirm = true;
+        throw new Error(json.error || 'We could not confirm your payment yet. Please do not pay again; we will confirm it automatically.');
+      }
+      showSuccess(json.refId, json.paymentId);
     } catch (err) {
-      submitError.textContent = err.message;
-      submitError.hidden = false;
-      submitError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      showError(pending ? `${err.message} Reference: ${pending.refId}.` : err.message);
     } finally {
-      submitBtn.disabled = false;
-      submitBtn.firstChild.textContent = 'Enter the Den ';
+      submitBtn.disabled = awaitingConfirm;
+      if (awaitingConfirm) submitLabel.textContent = 'Payment being confirmed';
+      else setPayLabel();
     }
   });
 

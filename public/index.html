@@ -40,15 +40,15 @@
           <li data-step="1"><span class="step-index__num">02</span><span class="step-index__label">Team Lead</span></li>
           <li data-step="2"><span class="step-index__num">03</span><span class="step-index__label">The Idea</span></li>
           <li data-step="3"><span class="step-index__num">04</span><span class="step-index__label">Pitch Deck</span></li>
-          <li data-step="4"><span class="step-index__num">05</span><span class="step-index__label">Payment</span></li>
-          <li data-step="5"><span class="step-index__num">06</span><span class="step-index__label">Declaration</span></li>
+          <li data-step="4"><span class="step-index__num">05</span><span class="step-index__label">Declaration</span></li>
+          <li data-step="5"><span class="step-index__num">06</span><span class="step-index__label">Payment</span></li>
         </ol>
       </nav>
 
       <footer class="brand-foot">
         <span id="footCity">Pune · Bangalore · Mumbai</span>
         <span>Teams of 1–3</span>
-        <span>@denzero</span>
+        <span><a href="https://instagram.com/hustle_denzero" target="_blank" rel="noopener">@hustle_denzero</a></span>
       </footer>
     </div>
   </aside>
@@ -220,49 +220,11 @@
         </div>
       </section>
 
-      <!-- ░░ STEP 5 · PAYMENT ░░ -->
+      <!-- ░░ STEP 5 · FINAL WORD ░░ -->
       <section class="step" data-step="4" aria-labelledby="s5-title">
-        <p class="step__kicker">05. Payment</p>
-        <h2 class="step__title" id="s5-title">Secure your<br/>spot in the den.</h2>
-        <p class="step__lede">One flat fee per team for your city. Covers evaluation, mentor feedback and event access.</p>
-
-        <div class="pay-card">
-          <div class="pay-card__amount">
-            <span class="pay-card__label">Registration fee</span>
-            <span class="pay-card__price"><span id="payFee">₹—</span><small>/ team</small></span>
-            <span class="pay-card__city"><span id="payCity">No city picked</span> · <button type="button" class="pay-card__change" data-open-city>change</button></span>
-          </div>
-          <div class="pay-card__upi">
-            <span class="pay-card__label">Pay via UPI</span>
-            <code class="pay-card__vpa" id="upiId">9158214594-3@ybl</code>
-            <button type="button" class="pay-card__copy" id="copyUpi">Copy ID</button>
-            <span class="pay-card__alt">or pay to number <b>9158214594</b></span>
-          </div>
-        </div>
-
-        <div class="field-group">
-          <label class="field-label" for="utr">Transaction ID / UTR number <b>*</b></label>
-          <input class="input input--mono" id="utr" name="utr" type="text" placeholder="e.g. 415236789012" minlength="8" required />
-          <p class="field-error">Enter the UTR / transaction ID from your payment app.</p>
-        </div>
-
-        <div class="field-group">
-          <label class="dropzone dropzone--slim" id="shotZone" for="shotFile">
-            <input type="file" id="shotFile" name="shotFile" accept="image/*,.pdf" required hidden />
-            <svg class="dropzone__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 16l4.5-4.5a2 2 0 0 1 2.8 0L16 16m-2-2 1.5-1.5a2 2 0 0 1 2.8 0L20 14M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8Zm5 2h.01" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span class="dropzone__title">Upload payment screenshot</span>
-            <span class="dropzone__hint">image or PDF, up to 5 MB</span>
-            <span class="dropzone__file" hidden></span>
-          </label>
-          <p class="field-error">Attach your payment screenshot.</p>
-        </div>
-      </section>
-
-      <!-- ░░ STEP 6 · DECLARATION ░░ -->
-      <section class="step" data-step="5" aria-labelledby="s6-title">
-        <p class="step__kicker">06. Final Word</p>
-        <h2 class="step__title" id="s6-title">Almost in.<br/>Sign it off.</h2>
-        <p class="step__lede">Two quick questions, three honest checkboxes, and the door opens.</p>
+        <p class="step__kicker">05. Final Word</p>
+        <h2 class="step__title" id="s5-title">Almost in.<br/>Sign it off.</h2>
+        <p class="step__lede">Two quick questions and three honest checkboxes. Payment is the last step.</p>
 
         <div class="field-group">
           <label class="field-label" for="source">How did you hear about Den Zero? <b>*</b></label>
@@ -294,8 +256,33 @@
           <span class="field-label">Declaration <b>*</b></span>
           <label class="check"><input type="checkbox" name="declAccurate" required /><span class="check__box"></span><span>All information provided is accurate to the best of my knowledge.</span></label>
           <label class="check"><input type="checkbox" name="declOriginal" required /><span class="check__box"></span><span>The idea submitted is original and our own work.</span></label>
-          <label class="check"><input type="checkbox" name="declTerms" required /><span class="check__box"></span><span>We agree to Den Zero's terms and evaluation process.</span></label>
+          <label class="check"><input type="checkbox" name="declTerms" required /><span class="check__box"></span><span>We agree to Den Zero's <a href="/terms" target="_blank">terms</a>, evaluation process and <a href="/refund-policy" target="_blank">refund policy</a> (the fee is non-refundable).</span></label>
           <p class="field-error">All three declarations are required.</p>
+        </div>
+      </section>
+
+      <!-- ░░ STEP 6 · PAYMENT ░░ -->
+      <section class="step" data-step="5" aria-labelledby="s6-title">
+        <p class="step__kicker">06. Payment</p>
+        <h2 class="step__title" id="s6-title">Secure your<br/>spot in the den.</h2>
+        <p class="step__lede">One flat fee per team for your city. Covers evaluation, mentor feedback and event access.</p>
+
+        <div class="pay-card">
+          <div class="pay-card__amount">
+            <span class="pay-card__label">Registration fee</span>
+            <span class="pay-card__price"><span id="payFee">₹—</span><small>/ team</small></span>
+            <span class="pay-card__city"><span id="payCity">No city picked</span><span id="payCityChange"> · <button type="button" class="pay-card__change" data-open-city>change</button></span></span>
+          </div>
+          <div class="pay-card__upi">
+            <span class="pay-card__label">Secure checkout</span>
+            <span class="pay-card__methods">UPI · Cards · Netbanking · Wallets</span>
+            <span class="pay-card__alt">Payments are processed by <b>Razorpay</b>. We never see your card or bank details.</span>
+          </div>
+        </div>
+
+        <div class="note-strip">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 8v5m0 3h.01M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          Your registration is confirmed only after payment succeeds. The fee is non-refundable.
         </div>
       </section>
 
@@ -309,7 +296,7 @@
           Continue <span class="btn__arrow">→</span>
         </button>
         <button type="submit" class="btn btn--solid btn--submit" id="submitBtn" hidden>
-          Enter the Den <span class="btn__arrow">→</span>
+          <span id="submitLabel">Pay &amp; enter the Den</span> <span class="btn__arrow">→</span>
         </button>
       </div>
     </form>
@@ -321,15 +308,20 @@
         <path class="door door--2" d="M12 18 H88 V120 H12 Z" stroke="currentColor" stroke-width="3"/>
         <path class="door door--3" d="M22 26 H98 V112 H22 Z" stroke="currentColor" stroke-width="3"/>
       </svg>
-      <p class="step__kicker">Registration received</p>
+      <p class="step__kicker">Payment received</p>
       <h2 class="success__title">The door<br/>is open.</h2>
-      <p class="success__sub">Your team is in. We'll verify your payment and reach out on WhatsApp within 48 hours with next steps.</p>
+      <p class="success__sub">Your team is in and your payment is confirmed. We'll reach out on WhatsApp within 48 hours with next steps. Razorpay has emailed you a receipt.</p>
       <div class="success__ref">
         <span>Reference ID</span>
         <code id="refId">DZ-26-0000</code>
+        <span class="success__pay">Payment ID <b id="payId"></b></span>
       </div>
       <p class="success__foot">Questions? Write to <a href="mailto:hello@denzero.in">hello@denzero.in</a></p>
     </section>
+
+    <nav class="legal-links" aria-label="Policies">
+      <a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/refund-policy">Refund policy</a><a href="/contact">Contact</a>
+    </nav>
   </main>
 
   <!-- ============ CITY GATE (opens on page load, before the form) ============ -->
@@ -352,6 +344,7 @@
     </div>
   </div>
 
+  <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
   <script src="app.js"></script>
 </body>
 </html>

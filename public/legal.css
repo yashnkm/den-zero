@@ -1,0 +1,135 @@
+/* ============================================================
+   DEN ZERO — policy pages (terms, privacy, refunds, contact)
+   ============================================================ */
+:root {
+  --navy: #001F65;
+  --navy-deep: #021240;
+  --paper: #F4F6FC;
+  --powder: #BDD7FF;
+  --ink: #0E0E0E;
+  --line: rgba(0, 31, 101, 0.16);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Montserrat', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.75;
+}
+
+.legal-head {
+  background: linear-gradient(165deg, var(--navy), var(--navy-deep));
+  color: var(--paper);
+  padding: 1.2rem clamp(1rem, 5vw, 3rem);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.legal-head img { height: 34px; width: auto; display: block; }
+.legal-head a.back {
+  margin-left: auto;
+  font-family: 'Lekton', monospace;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--powder);
+  text-decoration: none;
+}
+.legal-head a.back:hover { text-decoration: underline; }
+
+main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: clamp(2rem, 6vh, 4rem) 1rem 3rem;
+}
+
+.kicker {
+  font-family: 'Lekton', monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--navy);
+}
+
+h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-weight: 400;
+  font-size: clamp(2.6rem, 7vw, 3.8rem);
+  line-height: 0.95;
+  letter-spacing: 0.01em;
+  color: var(--navy);
+  margin: 0.6rem 0 0.4rem;
+}
+
+.updated { font-size: 0.82rem; color: rgba(14, 14, 14, 0.55); margin-bottom: 2rem; }
+
+h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-weight: 400;
+  font-size: 1.55rem;
+  letter-spacing: 0.04em;
+  color: var(--navy);
+  margin: 2rem 0 0.4rem;
+}
+
+p, li { font-size: 0.92rem; color: rgba(14, 14, 14, 0.82); }
+p + p { margin-top: 0.8rem; }
+ul { padding-left: 1.3rem; margin: 0.5rem 0; }
+li + li { margin-top: 0.3rem; }
+a { color: var(--navy); font-weight: 600; }
+
+.callout {
+  margin: 1.2rem 0;
+  padding: 1rem 1.2rem;
+  border-left: 3px solid var(--navy);
+  background: rgba(0, 31, 101, 0.06);
+  border-radius: 0 8px 8px 0;
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-top: 1.4rem;
+}
+
+.contact-card {
+  background: #fff;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+}
+
+.contact-card h3 {
+  font-family: 'Lekton', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(14, 14, 14, 0.5);
+  margin-bottom: 0.3rem;
+}
+
+/* placeholders the organisers must fill before going live */
+.fill { background: #fff3b0; padding: 0 0.25rem; border-radius: 3px; font-weight: 600; }
+
+.legal-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem 1.4rem;
+  padding: 1.5rem 1rem 2.5rem;
+  border-top: 1.5px solid var(--line);
+  font-family: 'Lekton', monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.legal-foot a { color: rgba(14, 14, 14, 0.55); text-decoration: none; font-weight: 700; }
+.legal-foot a:hover, .legal-foot a[aria-current] { color: var(--navy); }

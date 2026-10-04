@@ -215,6 +215,8 @@ body {
   text-transform: uppercase;
   color: rgba(244, 246, 252, 0.55);
 }
+.brand-foot a { color: inherit; text-decoration: none; }
+.brand-foot a:hover { color: #f4f6fc; }
 
 /* ============================================================
    FORM SIDE (right)
@@ -697,30 +699,14 @@ body {
 
 .pay-card__upi .pay-card__label { color: rgba(14, 14, 14, 0.5); opacity: 1; }
 
-.pay-card__vpa {
-  font-family: var(--font-mono);
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--navy);
-  letter-spacing: 0.04em;
-}
-
-.pay-card__copy {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
+.pay-card__methods {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--navy);
-  background: var(--accent-soft);
-  border: 1px solid var(--line);
-  border-radius: 99px;
-  padding: 0.4rem 1rem;
-  cursor: pointer;
-  transition: all 0.25s var(--ease-spring);
+  line-height: 1.1;
 }
-
-.pay-card__copy:hover { background: var(--navy); color: var(--paper); transform: translateY(-1px); }
 
 .pay-card__alt {
   margin-top: 0.5rem;
@@ -1070,6 +1056,30 @@ body {
 .success__foot { margin-top: 2.4rem; font-size: 0.84rem; font-weight: 500; color: rgba(14, 14, 14, 0.55); }
 
 .success__foot a { color: var(--navy); font-weight: 700; }
+
+.success__ref .success__pay { letter-spacing: 0.1em; text-transform: none; }
+.success__ref .success__pay b { color: var(--navy); }
+
+.check a { color: var(--navy); font-weight: 700; }
+
+/* policy links — Razorpay requires these to be reachable from the payment page */
+.legal-links {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem 1.4rem;
+  padding: 0 1.5rem 2.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.legal-links a { color: rgba(14, 14, 14, 0.5); text-decoration: none; }
+.legal-links a:hover { color: var(--navy); text-decoration: underline; }
 
 /* ============================================================
    RESPONSIVE

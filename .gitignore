@@ -5,3 +5,4 @@ uploads/
 .DS_Store
 DEPLOYMENT-SECRETS.txt
 content/temp.txt
+test-evidence/

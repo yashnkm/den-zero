@@ -21,11 +21,19 @@ CREATE TABLE IF NOT EXISTS registrations (
   progress         TEXT NOT NULL,
   ideal_investor   TEXT,
   deck_path        TEXT,
-  utr              TEXT NOT NULL,           -- duplicates allowed; flagged in admin "Duplicates" tab
-  screenshot_path  TEXT,
   source           TEXT,
   looking_for      TEXT[] DEFAULT '{}',
-  payment_verified BOOLEAN NOT NULL DEFAULT FALSE,
+  payment_method   TEXT NOT NULL DEFAULT 'razorpay' CHECK (payment_method IN ('razorpay', 'upi_manual')),
+  payment_verified BOOLEAN NOT NULL DEFAULT FALSE,   -- razorpay: set on confirmed capture; upi_manual: set by admin
+  -- Razorpay (payment_status is NULL for upi_manual rows)
+  payment_status      TEXT CHECK (payment_status IN ('awaiting_payment', 'paid', 'failed')),
+  razorpay_order_id   TEXT UNIQUE,
+  razorpay_payment_id TEXT UNIQUE,
+  amount_paid         INT,                  -- ₹, as captured by Razorpay
+  paid_at             TIMESTAMPTZ,
+  -- Legacy manual UPI (registrations before Razorpay)
+  utr              TEXT,                    -- duplicates flagged in admin "Duplicates" tab
+  screenshot_path  TEXT,
   created_at       TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -44,3 +52,16 @@ DO $$ BEGIN
     ALTER TABLE registrations ADD CONSTRAINT registrations_city_check CHECK (city IN ('Pune', 'Bangalore', 'Mumbai'));
   END IF;
 END $$;
+
+-- Migration to Razorpay (safe to re-run). Rows that exist before this point
+-- were paid by manual UPI: the column default tags them, then flips to razorpay.
+ALTER TABLE registrations ADD COLUMN IF NOT EXISTS payment_method TEXT NOT NULL DEFAULT 'upi_manual'
+  CHECK (payment_method IN ('razorpay', 'upi_manual'));
+ALTER TABLE registrations ALTER COLUMN payment_method SET DEFAULT 'razorpay';
+ALTER TABLE registrations ADD COLUMN IF NOT EXISTS payment_status TEXT
+  CHECK (payment_status IN ('awaiting_payment', 'paid', 'failed'));
+ALTER TABLE registrations ADD COLUMN IF NOT EXISTS razorpay_order_id   TEXT UNIQUE;
+ALTER TABLE registrations ADD COLUMN IF NOT EXISTS razorpay_payment_id TEXT UNIQUE;
+ALTER TABLE registrations ADD COLUMN IF NOT EXISTS amount_paid INT;
+ALTER TABLE registrations ADD COLUMN IF NOT EXISTS paid_at TIMESTAMPTZ;
+ALTER TABLE registrations ALTER COLUMN utr DROP NOT NULL;

@@ -49,6 +49,7 @@
     .badge { font-family:'Lekton',monospace; font-size:.68rem; font-weight:700; letter-spacing:.1em; padding:.2rem .6rem; border-radius:99px; white-space:nowrap; }
     .badge.ok { background:rgba(26,122,58,.12); color:var(--ok); }
     .badge.pending { background:rgba(194,52,42,.1); color:var(--error); }
+    .badge.wait { background:rgba(176,112,0,.12); color:#8a5a00; }
     .empty { text-align:center; padding:3rem; color:rgba(14,14,14,.5); }
 
     /* filter tabs */
@@ -239,7 +240,17 @@
 
     const CITIES = ['Pune', 'Bangalore', 'Mumbai'];
     const inr = (n) => `₹${Number(n || 0).toLocaleString('en-IN')}`;
-    const sumFees = (list) => list.reduce((n, r) => n + r.fee, 0);
+    /* payment_verified is the "paid" flag for both methods: set by Razorpay
+       settlement, or by hand for legacy manual-UPI rows */
+    const isRzp = (r) => r.payment_method === 'razorpay';
+    const collected = (r) => (!r.payment_verified ? 0 : isRzp(r) ? (r.amount_paid || 0) : r.fee);
+    const sumPaid = (list) => list.reduce((n, r) => n + collected(r), 0);
+    const payState = (r) =>
+      r.payment_verified ? { cls: 'ok', label: isRzp(r) ? 'paid' : 'verified · upi' }
+      : !isRzp(r) ? { cls: 'pending', label: 'pending · upi' }
+      : r.payment_status === 'failed' ? { cls: 'pending', label: 'payment failed' }
+      : { cls: 'wait', label: 'awaiting payment' };
+    const badge = (r, id = '') => { const s = payState(r); return `<span class="badge ${s.cls}" ${id}>${s.label}</span>`; };
 
     /* ---------- duplicate UTR detection ----------
        Exact duplicates are blocked at submission (DB unique constraint),
@@ -282,7 +293,7 @@
         <td>${esc(r.idea_name)}</td>
         <td>${esc(r.stage)}</td>
         <td>${esc(r.lead_name)}<br><small class="mono">${esc(r.lead_whatsapp)}</small></td>
-        <td><span class="badge ${r.payment_verified?'ok':'pending'}">${r.payment_verified?'verified':'pending'}</span></td>
+        <td>${badge(r)}</td>
         <td>${new Date(r.created_at).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'})}</td>
       </tr>`;
 
@@ -301,24 +312,23 @@
 
       const cityStats = cityFilter === 'all'
         ? CITIES.map((c) => {
-            const cr = rows.filter((r) => r.city === c);
-            const cv = cr.filter((r) => r.payment_verified);
-            return `<div class="stat"><b>${cr.length}</b><span>${c} teams</span><small>${inr(sumFees(cv))} of ${inr(sumFees(cr))} collected</small></div>`;
+            const cv = rows.filter((r) => r.city === c && r.payment_verified);
+            return `<div class="stat"><b>${cv.length}</b><span>${c} paid teams</span><small>${inr(sumPaid(cv))} collected</small></div>`;
           }).join('')
         : '';
 
+      const awaiting = scoped.filter((r) => isRzp(r) && !r.payment_verified).length;
       document.getElementById('stats').innerHTML = `
-        <div class="stat"><b>${counts.all}</b><span>Teams</span></div>
-        <div class="stat"><b>${scoped.reduce((n,r)=>n+r.team_size,0)}</b><span>Participants</span></div>
-        <div class="stat"><b>${counts.verified}</b><span>Verified</span></div>
-        <div class="stat"><b>${inr(sumFees(verified))}</b><span>Collected</span><small>${inr(sumFees(scoped))} expected</small></div>
+        <div class="stat"><b>${counts.verified}</b><span>Paid teams</span><small>${awaiting} awaiting payment</small></div>
+        <div class="stat"><b>${verified.reduce((n,r)=>n+r.team_size,0)}</b><span>Participants</span><small>in paid teams</small></div>
+        <div class="stat"><b>${inr(sumPaid(verified))}</b><span>Collected</span></div>
         ${cityStats}`;
 
       const cityCount = (c) => (c === 'all' ? rows.length : rows.filter((r) => r.city === c).length);
       document.getElementById('tabs').innerHTML = `
         <button class="tab ${filter==='all'?'active':''}" onclick="setFilter('all')">All<span class="count">${counts.all}</span></button>
-        <button class="tab ${filter==='pending'?'active':''}" onclick="setFilter('pending')">Pending<span class="count">${counts.pending}</span></button>
-        <button class="tab ${filter==='verified'?'active':''}" onclick="setFilter('verified')">Verified<span class="count">${counts.verified}</span></button>
+        <button class="tab ${filter==='pending'?'active':''}" onclick="setFilter('pending')">Unpaid<span class="count">${counts.pending}</span></button>
+        <button class="tab ${filter==='verified'?'active':''}" onclick="setFilter('verified')">Paid<span class="count">${counts.verified}</span></button>
         <button class="tab danger ${filter==='dups'?'active':''}" onclick="setFilter('dups')">⚠ Duplicates<span class="count">${counts.dups}</span></button>
         <span class="tab-sep"></span>
         ${['all', ...CITIES].map((c) => `
@@ -369,7 +379,7 @@
                 <div class="idea">${esc(r.city)} · ${esc(r.idea_name)} · ${esc(r.stage)}</div>
               </div>
               <div class="spacer"></div>
-              <span class="badge ${r.payment_verified?'ok':'pending'}" id="modalBadge">${r.payment_verified?'verified':'pending'}</span>
+              ${badge(r, 'id="modalBadge"')}
               <button class="close" onclick="closeModal()" aria-label="Close">×</button>
             </div>
 
@@ -410,7 +420,51 @@
                 </div>
               </div>
 
-              <p class="sect-label">Payment Verification</p>
+              ${isRzp(r) ? razorpayPanel(r) : manualUpiPanel(r, shot)}
+            </div>
+          </div>
+        </div>`;
+      document.body.style.overflow = 'hidden';
+    };
+
+    const dateTime = (d) => new Date(d).toLocaleString('en-IN', { dateStyle: 'long', timeStyle: 'short' });
+
+    const deleteControls = `
+      <button class="btn-del" id="delBtn" onclick="askDelete()">🗑 Delete entry</button>
+      <span class="del-confirm" id="delConfirm" hidden>
+        Delete permanently?
+        <button class="btn-del-yes" id="delYes" onclick="doDelete()">Yes, delete</button>
+        <button class="btn-del-no" onclick="cancelDelete()">Cancel</button>
+      </span>`;
+
+    /* Razorpay — settled automatically by signature + webhook; nothing to verify by hand */
+    const razorpayPanel = (r) => `
+      <p class="sect-label">Payment · Razorpay</p>
+      <div class="pay-panel">
+        <div class="txn">
+          <div><h4>Payment ID</h4><div class="utr">${r.razorpay_payment_id
+            ? `<a href="https://dashboard.razorpay.com/app/payments/${esc(r.razorpay_payment_id)}" target="_blank" rel="noopener">${esc(r.razorpay_payment_id)}</a>`
+            : '—'}</div></div>
+          <div><h4>${r.payment_verified ? 'Amount paid' : 'Amount due'} · ${esc(r.city)}</h4>
+            <div class="amount">${inr(r.payment_verified ? r.amount_paid : r.fee)}</div></div>
+          <div class="meta">
+            Order <span class="mono">${esc(r.razorpay_order_id || '—')}</span><br>
+            Registered ${dateTime(r.created_at)}${r.paid_at ? `<br>Paid ${dateTime(r.paid_at)}` : ''}<br>
+            ${r.payment_verified
+              ? 'Confirmed by Razorpay (signature checked). No manual verification needed.'
+              : 'No successful payment yet. The team may have abandoned checkout; delete the entry if it stays unpaid.'}
+          </div>
+        </div>
+        <div class="verify-bar">
+          ${deleteControls}
+          <div class="spacer"></div>
+          <span class="state">${r.payment_verified ? '✓ Paid via Razorpay' : payState(r).label}</span>
+        </div>
+      </div>`;
+
+    /* Legacy manual UPI — screenshot + UTR, verified by hand */
+    const manualUpiPanel = (r, shot) => `
+              <p class="sect-label">Payment Verification · manual UPI</p>
               <div class="pay-panel">
                 <div class="pay-grid">
                   <div class="shot-box">
@@ -428,24 +482,14 @@
                   </div>
                 </div>
                 <div class="verify-bar">
-                  <button class="btn-del" id="delBtn" onclick="askDelete()">🗑 Delete entry</button>
-                  <span class="del-confirm" id="delConfirm" hidden>
-                    Delete permanently?
-                    <button class="btn-del-yes" id="delYes" onclick="doDelete()">Yes, delete</button>
-                    <button class="btn-del-no" onclick="cancelDelete()">Cancel</button>
-                  </span>
+                  ${deleteControls}
                   <div class="spacer"></div>
                   <span class="state" id="verifyState">${r.payment_verified ? '✓ Payment verified' : 'Payment pending verification'}</span>
                   <button class="btn-verify ${r.payment_verified?'undo':''}" id="verifyBtn" onclick="verify()">
                     ${r.payment_verified ? 'Unverify' : 'Verify payment'}
                   </button>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>`;
-      document.body.style.overflow = 'hidden';
-    };
+              </div>`;
 
     window.closeModal = () => {
       openIdx = null;
@@ -475,6 +519,7 @@
       });
       if (res.status === 401) return location.reload();
       const json = await res.json();
+      if (!res.ok) { btn.disabled = false; alert(json.error || 'Could not update.'); return; }
       rows[openIdx].payment_verified = json.payment_verified;
       render();
       openModal(openIdx);
