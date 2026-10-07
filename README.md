@@ -74,7 +74,7 @@ sudo certbot --nginx -d register.denzero.in   # free HTTPS
 ## Before going live
 
 - [ ] Replace `denzero@upi` in `public/index.html` with the real UPI VPA
-- [ ] Replace `hello@denzero.in` contact email on the success screen
+- [x] Replace `hello@denzero.in` contact email on the success screen (now karan@hustleden.in)
 - [ ] Set a strong `ADMIN_PASS` in `.env`
 - [ ] Run one test registration, verify it in `/admin`, then delete it:
       `DELETE FROM registrations;` and clear `uploads/decks` + `uploads/payments`
