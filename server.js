@@ -2,7 +2,7 @@
    DEN ZERO — registration backend
    Express + Postgres + local disk uploads + Razorpay payments
    ============================================================ */
-require('dotenv').config();
+require('dotenv').config({ override: true }); // .env wins over stale values pinned in pm2's saved environment
 
 const path = require('path');
 const fs = require('fs');
