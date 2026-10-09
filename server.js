@@ -26,6 +26,14 @@ const SHOT_DIR = path.join(UPLOAD_ROOT, 'payments'); // legacy manual-UPI screen
    the Razorpay order amount always comes from here. */
 const CITY_FEES = { Pune: 1499, Bangalore: 2499, Mumbai: 1999 };
 
+/* FEE_OVERRIDE_RUPEES (local testing only): charge this for every city,
+   e.g. 1 to run a ₹1 live payment end to end. Never set it in production. */
+const FEE_OVERRIDE = Number(process.env.FEE_OVERRIDE_RUPEES) || 0;
+if (FEE_OVERRIDE) {
+  for (const city of Object.keys(CITY_FEES)) CITY_FEES[city] = FEE_OVERRIDE;
+  console.warn(`FEE_OVERRIDE_RUPEES is set: every city is charged ₹${FEE_OVERRIDE}. Remove it before going live.`);
+}
+
 /* ---------------------------------------------------------
    Razorpay — keys live only in .env; the browser gets key_id
    --------------------------------------------------------- */
