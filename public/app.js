@@ -443,7 +443,16 @@
     })
   );
 
-  document.querySelectorAll('[data-open-city]').forEach((b) => b.addEventListener('click', openCityGate));
+  // The server's fees win over the defaults in the HTML, so the price shown is the price charged.
+  fetch('/api/fees')
+    .then((r) => (r.ok ? r.json() : null))
+    .then((fees) => {
+      if (!fees) return;
+      cityGate.querySelectorAll('.city-card').forEach((card) => {
+        if (fees[card.dataset.city]) card.dataset.fee = fees[card.dataset.city];
+      });
+    })
+    .catch(() => {});
 
   // Picking a city is mandatory the first time; after that, Esc / backdrop close it.
   cityGate.addEventListener('click', (e) => { if (e.target === cityGate && cityInput.value) closeCityGate(); });
@@ -470,7 +479,6 @@
   // Once saved, the order amount is fixed: no going back to edit, no city change.
   const lockRegistration = () => {
     backBtn.disabled = true;
-    document.getElementById('payCityChange').hidden = true;
   };
 
   const openCheckout = () => new Promise((resolve, reject) => {

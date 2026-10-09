@@ -26,12 +26,18 @@ const SHOT_DIR = path.join(UPLOAD_ROOT, 'payments'); // legacy manual-UPI screen
    the Razorpay order amount always comes from here. */
 const CITY_FEES = { Pune: 1499, Bangalore: 2499, Mumbai: 1999 };
 
-/* FEE_OVERRIDE_RUPEES (local testing only): charge this for every city,
-   e.g. 1 to run a ₹1 live payment end to end. Never set it in production. */
-const FEE_OVERRIDE = Number(process.env.FEE_OVERRIDE_RUPEES) || 0;
-if (FEE_OVERRIDE) {
-  for (const city of Object.keys(CITY_FEES)) CITY_FEES[city] = FEE_OVERRIDE;
-  console.warn(`FEE_OVERRIDE_RUPEES is set: every city is charged ₹${FEE_OVERRIDE}. Remove it before going live.`);
+/* CITY_FEE_OVERRIDES (testing only): temporary per-city fees in ₹, e.g.
+   "Pune:1,Mumbai:2,Bangalore:3" to run small live payments end to end.
+   Remove it from .env and restart to go back to the fees above. */
+for (const pair of (process.env.CITY_FEE_OVERRIDES || '').split(',')) {
+  const [city, amount] = pair.split(':').map((s) => s.trim());
+  if (!city) continue;
+  if (!Object.hasOwn(CITY_FEES, city) || !(Number.isInteger(+amount) && +amount > 0)) {
+    console.error(`CITY_FEE_OVERRIDES: ignoring "${pair}"`);
+    continue;
+  }
+  CITY_FEES[city] = +amount;
+  console.warn(`CITY_FEE_OVERRIDES is set: ${city} is charged ₹${amount}. Remove it before launch.`);
 }
 
 /* ---------------------------------------------------------
@@ -404,6 +410,11 @@ app.post('/api/admin/logout', (_req, res) => {
 app.get('/admin', (req, res) =>
   res.sendFile(path.join(__dirname, 'views', isAuthed(req) ? 'admin.html' : 'login.html'))
 );
+
+/* GET /api/fees — the page shows these, so it always matches what is charged */
+app.get('/api/fees', (_req, res) => {
+  res.set('Cache-Control', 'no-store').json(CITY_FEES);
+});
 
 app.get('/api/admin/registrations', adminAuth, async (_req, res) => {
   const { rows } = await pool.query('SELECT * FROM registrations ORDER BY created_at DESC');

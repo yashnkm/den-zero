@@ -725,19 +725,6 @@ body {
   color: var(--powder);
 }
 
-.pay-card__change {
-  font: inherit;
-  letter-spacing: inherit;
-  text-transform: inherit;
-  color: var(--paper);
-  background: none;
-  border: none;
-  padding: 0;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  cursor: pointer;
-}
-
 /* ============================================================
    CITY GATE — greeting popup, opens on page load
    ============================================================ */
