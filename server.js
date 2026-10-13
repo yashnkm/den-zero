@@ -24,7 +24,7 @@ const SHOT_DIR = path.join(UPLOAD_ROOT, 'payments'); // legacy manual-UPI screen
 
 /* Registration fee per team, by city (₹). The client only displays these;
    the Razorpay order amount always comes from here. */
-const CITY_FEES = { Pune: 1499, Bangalore: 2499, Mumbai: 1999 };
+const CITY_FEES = { Pune: 999, Bangalore: 2499, Mumbai: 1499 };
 
 /* CITY_FEE_OVERRIDES (testing only): temporary per-city fees in ₹, e.g.
    "Pune:1,Mumbai:2,Bangalore:3" to run small live payments end to end.
