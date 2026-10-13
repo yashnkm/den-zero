@@ -799,6 +799,25 @@ body {
 
 .city-card.is-selected .city-card__name { color: var(--paper); }
 
+.city-card__tag {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(14, 14, 14, 0.45);
+}
+
+.city-card__tag--open { color: var(--navy); }
+
+.city-card.is-selected .city-card__tag { color: var(--powder); }
+
+.city-card--soon { border-style: dashed; background: transparent; }
+
+.city-card--soon .city-card__name { color: rgba(14, 14, 14, 0.45); }
+
+.city-card--soon:hover { border-style: solid; }
+
 /* ============================================================
    PILLS + CHECKS
    ============================================================ */

@@ -432,6 +432,11 @@
   cityGate.querySelectorAll('.city-card').forEach((card) =>
     card.addEventListener('click', () => {
       const { city, fee } = card.dataset;
+      // Only Pune is open for now; the other editions get a coming-soon page.
+      if ('soon' in card.dataset) {
+        location.href = `/coming-soon?city=${encodeURIComponent(city)}`;
+        return;
+      }
       cityInput.value = city;
       selectedFee = +fee;
       document.getElementById('payFee').textContent = inr(selectedFee);

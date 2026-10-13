@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coming Soon · Den Zero</title>
+  <meta name="description" content="Den Zero opens in Pune first. More cities are coming soon." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Lekton:wght@400;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --navy: #001F65;
+      --navy-deep: #021240;
+      --navy-void: #010a26;
+      --paper: #F4F6FC;
+      --powder: #BDD7FF;
+      --font-display: 'Bebas Neue', sans-serif;
+      --font-mono: 'Lekton', monospace;
+      --font-body: 'Montserrat', sans-serif;
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      font-family: var(--font-body);
+      color: var(--paper);
+      background:
+        radial-gradient(90% 60% at 85% 0%, #0a2f8a 0%, transparent 60%),
+        radial-gradient(70% 50% at 0% 100%, rgba(189, 215, 255, 0.08) 0%, transparent 60%),
+        linear-gradient(165deg, var(--navy) 0%, var(--navy-deep) 55%, var(--navy-void) 100%);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    ::selection { background: var(--powder); color: var(--navy); }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: clamp(1.25rem, 3vw, 2rem) clamp(1rem, 4vw, 3rem);
+    }
+
+    header img { width: clamp(120px, 12vw, 156px); height: auto; display: block; }
+
+    .back {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--powder);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .back:hover { color: var(--paper); }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem clamp(1rem, 4vw, 3rem) 4rem;
+    }
+
+    /* three door frames, drawn one after another (the Den Zero mark) */
+    .doors { width: 76px; height: auto; color: var(--powder); margin-bottom: 2.2rem; }
+    .doors path {
+      stroke-dasharray: 500;
+      stroke-dashoffset: 500;
+      animation: draw 1.4s var(--ease-out) forwards;
+    }
+    .doors .d2 { animation-delay: 0.25s; }
+    .doors .d3 { animation-delay: 0.5s; opacity: 0.45; stroke-dasharray: 6 8; stroke-dashoffset: 0; animation: blink 2.4s ease-in-out 1s infinite; }
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+    @keyframes blink { 50% { opacity: 0.15; } }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--powder);
+      padding: 0.45rem 1rem;
+      border: 1px solid rgba(189, 215, 255, 0.35);
+      border-radius: 99px;
+    }
+    .kicker::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--powder);
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse { 50% { opacity: 0.25; transform: scale(0.7); } }
+
+    h1 {
+      margin-top: 1.4rem;
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: clamp(4rem, 13vw, 8.5rem);
+      line-height: 0.88;
+      letter-spacing: 0.01em;
+      text-transform: uppercase;
+    }
+    h1 em { font-style: normal; color: var(--powder); }
+
+    .sub {
+      margin-top: 1.6rem;
+      max-width: 46ch;
+      font-size: clamp(0.92rem, 1.6vw, 1.02rem);
+      font-weight: 500;
+      line-height: 1.75;
+      color: rgba(244, 246, 252, 0.72);
+    }
+    .sub b { color: var(--paper); font-weight: 700; }
+
+    .actions {
+      margin-top: 2.6rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.9rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.7rem;
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border-radius: 6px;
+      padding: 0.9rem 1.9rem;
+      border: 1.5px solid transparent;
+      transition: transform 0.3s var(--ease-spring), box-shadow 0.3s, border-color 0.3s, background 0.3s;
+    }
+    .btn span { font-family: var(--font-body); font-weight: 700; transition: transform 0.3s var(--ease-spring); }
+    .btn:focus-visible { outline: 2px solid var(--powder); outline-offset: 3px; }
+
+    .btn--solid {
+      background: var(--paper);
+      color: var(--navy);
+      box-shadow: 0 12px 30px rgba(1, 10, 38, 0.45);
+    }
+    .btn--solid:hover { transform: translateY(-3px); box-shadow: 0 18px 38px rgba(1, 10, 38, 0.55); }
+    .btn--solid:hover span { transform: translateX(4px); }
+
+    .btn--ghost {
+      color: var(--paper);
+      border-color: rgba(189, 215, 255, 0.4);
+    }
+    .btn--ghost:hover { border-color: var(--powder); background: rgba(189, 215, 255, 0.08); transform: translateY(-2px); }
+
+    .cities {
+      margin-top: 3.4rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.6rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+    .cities li {
+      list-style: none;
+      padding: 0.45rem 0.95rem;
+      border-radius: 99px;
+      border: 1px dashed rgba(189, 215, 255, 0.3);
+      color: rgba(189, 215, 255, 0.6);
+    }
+    .cities li.open { border-style: solid; border-color: var(--powder); color: var(--navy); background: var(--powder); }
+
+    main > * { animation: rise 0.7s var(--ease-out) both; }
+    main > :nth-child(2) { animation-delay: 0.1s; }
+    main > :nth-child(3) { animation-delay: 0.18s; }
+    main > :nth-child(4) { animation-delay: 0.26s; }
+    main > :nth-child(5) { animation-delay: 0.34s; }
+    main > :nth-child(6) { animation-delay: 0.42s; }
+    @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+
+    footer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.4rem 1.6rem;
+      padding: 1.4rem 1rem 1.8rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+    footer a { color: rgba(189, 215, 255, 0.6); text-decoration: none; }
+    footer a:hover { color: var(--paper); }
+
+    @media (max-width: 520px) {
+      .actions { flex-direction: column; width: 100%; }
+      .btn { width: 100%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/"><img src="logo-light.png" alt="Den Zero" /></a>
+    <a class="back" href="/">← Pick another city</a>
+  </header>
+
+  <main>
+    <svg class="doors" viewBox="0 0 100 130" fill="none" aria-hidden="true">
+      <path class="d1" d="M2 10 H78 V128 H2 Z" stroke="currentColor" stroke-width="3"/>
+      <path class="d2" d="M12 18 H88 V120 H12 Z" stroke="currentColor" stroke-width="3"/>
+      <path class="d3" d="M22 26 H98 V112 H22 Z" stroke="currentColor" stroke-width="3"/>
+    </svg>
+    <p class="kicker"><span id="cityName">Your city</span> edition</p>
+    <h1>Coming<br/><em>soon.</em></h1>
+    <p class="sub">Den Zero opens in <b>Pune</b> first. The <b id="citySub">next</b> edition is on its way. Follow us on Instagram and you'll be the first to know when registrations open.</p>
+    <div class="actions">
+      <a class="btn btn--solid" href="/">Register for Pune <span>→</span></a>
+      <a class="btn btn--ghost" href="https://instagram.com/hustle_denzero" target="_blank" rel="noopener">Follow @hustle_denzero</a>
+    </div>
+    <ul class="cities" aria-label="Den Zero editions">
+      <li class="open">Pune · Open now</li>
+      <li>Mumbai · Soon</li>
+      <li>Bangalore · Soon</li>
+    </ul>
+  </main>
+
+  <footer aria-label="Policies">
+    <a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/refund-policy">Refund policy</a><a href="/contact">Contact</a>
+  </footer>
+
+  <script>
+    // Only show city names we know; anything else in the URL falls back to the generic copy.
+    const city = ['Mumbai', 'Bangalore'].find((c) => c === new URLSearchParams(location.search).get('city'));
+    if (city) {
+      document.getElementById('cityName').textContent = city;
+      document.getElementById('citySub').textContent = city;
+      document.title = `${city} · Coming Soon · Den Zero`;
+    }
+  </script>
+</body>
+</html>
